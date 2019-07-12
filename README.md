@@ -1,3 +1,2 @@
 # Request
-
-A description of this package.
+Declarative HTTP requests, perfect for SwiftUI
