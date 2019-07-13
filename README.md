@@ -66,9 +66,10 @@ To perform the `Request`, just use `.call()`. This will run the `Request`, and g
 There are many different tools available to build a `Request`:
 - `Url`
 
-Extractly one must be present in each `Request`
+Exactly one must be present in each `Request`
 ```swift
 Url("https://example.com")
+Url(protocol: .secure, url: "example.com")
 ```
 - `Method`
 

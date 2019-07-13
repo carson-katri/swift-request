@@ -18,4 +18,8 @@ public struct Url: RequestParam {
     public init(_ value: String) {
         self.value = value
     }
+    
+    public init(`protocol` type: ProtocolType, url: String) {
+        self.value = "\(type.rawValue)://\(url)"
+    }
 }
