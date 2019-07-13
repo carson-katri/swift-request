@@ -22,8 +22,8 @@ public extension Request {
 }
 
 @_functionBuilder
-internal struct RequestChainBuilder {
-    static func buildBlock(_ requests: (([Data?], [RequestError?]) -> RequestParam)...) -> [([Data?], [RequestError?]) -> RequestParam] {
+public struct RequestChainBuilder {
+    public static func buildBlock(_ requests: (([Data?], [RequestError?]) -> RequestParam)...) -> [([Data?], [RequestError?]) -> RequestParam] {
         return requests
     }
 }
@@ -48,7 +48,7 @@ internal struct RequestChainBuilder {
 ///     }
 ///
 /// - Precondition: You must have **at least 2** `Request`s in your chain, or the compiler will have a fit.
-struct RequestChain {
+public struct RequestChain {
     private let requests: [([Data?], [RequestError?]) -> RequestParam]
     
     public init(@RequestChainBuilder requests: () -> [([Data?], [RequestError?]) -> RequestParam]) {

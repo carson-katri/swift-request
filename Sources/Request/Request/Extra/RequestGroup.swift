@@ -9,8 +9,8 @@ import Foundation
 import Json
 
 @_functionBuilder
-internal struct RequestGroupBuilder {
-    static func buildBlock(_ requests: Request...) -> [Request] {
+public struct RequestGroupBuilder {
+    public static func buildBlock(_ requests: Request...) -> [Request] {
         return requests
     }
 }
@@ -35,7 +35,7 @@ internal struct RequestGroupBuilder {
 ///
 /// You can use `onData`, `onString`, `onJson`, and `onError` like you would with a normal `Request`.
 /// However, it will also return the index of the `Request`, along with the data.
-class RequestGroup {
+public class RequestGroup {
     private let requests: [Request]
     
     private var onData: ((Int, Data?) -> Void)?
