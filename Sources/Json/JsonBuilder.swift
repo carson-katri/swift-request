@@ -8,12 +8,12 @@
 import Foundation
 
 @_functionBuilder
-internal struct JsonBuilder {
-    static func buildBlock(_ props: JsonProperty...) -> JsonProperty {
+public struct JsonBuilder {
+    public static func buildBlock(_ props: JsonProperty...) -> JsonProperty {
         return JsonProperty(key: "root", value: props)
     }
     
-    static func buildBlock() -> JsonProperty {
+    public static func buildBlock() -> JsonProperty {
         return JsonProperty(key: "root", value: [])
     }
 }
