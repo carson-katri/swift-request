@@ -27,7 +27,7 @@ import Foundation
 ///     myJson["firstName"].string // "Carson"
 ///     myComplexJson[0]["nestedJson"]["id"].int
 public struct Json {
-    var properties: [JsonProperty]
+    public var properties: [JsonProperty]
     
     /// Encodes the `Json` as `Data`
     public var data: Data {
