@@ -37,13 +37,13 @@ public class Request: BindableObject {
     private var onJson: ((Json?) -> Void)?
     private var onError: ((RequestError) -> Void)?
     
-    var response: Response = Response() {
+    public var response: Response = Response() {
         didSet {
             didChange.send(self)
         }
     }
     
-    init(@RequestBuilder builder: () -> RequestParam) {
+    public init(@RequestBuilder builder: () -> RequestParam) {
         let params = builder()
         if !(params is CombinedParams) {
             self.params = CombinedParams(children: [params])
@@ -59,31 +59,31 @@ public class Request: BindableObject {
     }
     
     /// Sets the `onData` callback to be run whenever `Data` is retrieved
-    func onData(_ callback: @escaping (Data?) -> Void) -> Request {
+    public func onData(_ callback: @escaping (Data?) -> Void) -> Request {
         self.onData = callback
         return self
     }
     
     /// Sets the `onString` callback to be run whenever a `String` is retrieved
-    func onString(_ callback: @escaping (String?) -> Void) -> Request {
+    public func onString(_ callback: @escaping (String?) -> Void) -> Request {
         self.onString = callback
         return self
     }
     
     /// Sets the `onData` callback to be run whenever `Json` is retrieved
-    func onJson(_ callback: @escaping (Json?) -> Void) -> Request {
+    public func onJson(_ callback: @escaping (Json?) -> Void) -> Request {
         self.onJson = callback
         return self
     }
     
     /// Handle any `RequestError`s thrown by the `Request`
-    func onError(_ callback: @escaping (RequestError) -> Void) -> Request {
+    public func onError(_ callback: @escaping (RequestError) -> Void) -> Request {
         self.onError = callback
         return self
     }
     
     /// Performs the `Request`, and calls the `onData`, `onString`, `onJson`, and `onError` callbacks when appropriate.
-    func call() {
+    public func call() {
         // Url
         guard var components = URLComponents(string: params.children!.filter({ $0.type == .url })[0].value as! String) else {
             fatalError("Missing Url in Request body")

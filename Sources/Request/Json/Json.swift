@@ -30,7 +30,7 @@ public struct Json {
     var properties: [JsonProperty]
     
     /// Encodes the `Json` as `Data`
-    var data: Data {
+    public var data: Data {
         var dict: [String:Any?] = [:]
         self.properties.forEach { prop in
             var value = prop.value
@@ -46,7 +46,7 @@ public struct Json {
         return (try? JSONSerialization.data(withJSONObject: dict, options: .prettyPrinted)) ?? Data()
     }
     /// Encodes the `Json` as a `String`
-    var string: String {
+    public var string: String {
         return String(data: self.data, encoding: .utf8) ?? ""
     }
     
@@ -58,7 +58,7 @@ public struct Json {
         }
     }
     
-    init() {
+    public init() {
         self.properties = []
     }
     
@@ -121,11 +121,11 @@ public struct Json {
         return try! JSONDecoder().decode(type, from: data)
     }*/
     
-    subscript(index: Int) -> JsonProperty {
+    public subscript(index: Int) -> JsonProperty {
         return properties[index]
     }
     
-    subscript(key: String) -> JsonProperty {
+    public subscript(key: String) -> JsonProperty {
         return properties.filter({ $0.key == key }).first!
     }
 }

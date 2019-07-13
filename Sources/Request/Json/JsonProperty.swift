@@ -19,21 +19,21 @@ public struct JsonProperty {
     }
     
     /// Retrieves the value as a non-optional `String`
-    var string: String {
+    public var string: String {
         return value as? String ?? ""
     }
     
     /// Retrieves the value as a non-optional `Double`
-    var double: Double {
+    public var double: Double {
         return value as? Double ?? 0.0
     }
     /// Retrieves the value as a non-optional `Int`
-    var int: Int {
+    public var int: Int {
         return value as? Int ?? 0
     }
     
     /// Retrieves the value as a non-optional `Json` object
-    var json: Json {
+    public var json: Json {
         get {
             let props = value as? [JsonProperty] ?? [JsonProperty]()
             var json = Json()
@@ -43,7 +43,7 @@ public struct JsonProperty {
     }
     
     /// Retrieves the value as a non-optional `JsonProperty`
-    var property: JsonProperty {
+    public var property: JsonProperty {
         get {
             return value as? JsonProperty ?? JsonProperty(key: "", value: nil)
         }

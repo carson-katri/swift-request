@@ -8,7 +8,7 @@
 import Foundation
 
 @_functionBuilder
-struct RequestGroupBuilder {
+internal struct RequestGroupBuilder {
     static func buildBlock(_ requests: Request...) -> [Request] {
         return requests
     }
@@ -35,39 +35,39 @@ struct RequestGroupBuilder {
 /// You can use `onData`, `onString`, `onJson`, and `onError` like you would with a normal `Request`.
 /// However, it will also return the index of the `Request`, along with the data.
 class RequestGroup {
-    let requests: [Request]
+    private let requests: [Request]
     
     private var onData: ((Int, Data?) -> Void)?
     private var onString: ((Int, String?) -> Void)?
     private var onJson: ((Int, Json?) -> Void)?
     private var onError: ((Int, RequestError) -> Void)?
     
-    init(@RequestGroupBuilder requests: () -> [Request]) {
+    public init(@RequestGroupBuilder requests: () -> [Request]) {
         self.requests = requests()
     }
     
-    func onData(_ callback: @escaping ((Int, Data?) -> Void)) -> RequestGroup {
+    public func onData(_ callback: @escaping ((Int, Data?) -> Void)) -> RequestGroup {
         self.onData = callback
         return self
     }
     
-    func onString(_ callback: @escaping ((Int, String?) -> Void)) -> RequestGroup {
+    public func onString(_ callback: @escaping ((Int, String?) -> Void)) -> RequestGroup {
         self.onString = callback
         return self
     }
     
-    func onJson(_ callback: @escaping ((Int, Json?) -> Void)) -> RequestGroup {
+    public func onJson(_ callback: @escaping ((Int, Json?) -> Void)) -> RequestGroup {
         self.onJson = callback
         return self
     }
     
-    func onError(_ callback: @escaping ((Int, RequestError) -> Void)) -> RequestGroup {
+    public func onError(_ callback: @escaping ((Int, RequestError) -> Void)) -> RequestGroup {
         self.onError = callback
         return self
     }
     
     /// Perform the `Request`s in the group.
-    func call() {
+    public func call() {
         self.requests.enumerated().forEach { (index, _req) in
             var req = _req
             if self.onData != nil {

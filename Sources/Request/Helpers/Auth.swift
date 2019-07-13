@@ -27,15 +27,15 @@ public enum AuthType: String {
 ///
 /// You can use `.basic` and `.bearer` to simplify the process of authenticating your `Request`
 public struct Auth {
-    let type: AuthType
-    let key: String
-    var value: String {
+    public let type: AuthType
+    public let key: String
+    public var value: String {
         get {
             return "\(type.rawValue) \(key)"
         }
     }
     
-    init(type: AuthType, key: String) {
+    public init(type: AuthType, key: String) {
         self.type = type
         self.key = key
     }
@@ -43,12 +43,12 @@ public struct Auth {
 
 extension Auth {
     /// Authenticates using `username` and `password` directly
-    static func basic(username: String, password: String) -> Auth {
+    public static func basic(username: String, password: String) -> Auth {
         return Auth(type: .basic, key: "\(username):\(password)")
     }
     
     /// Authenticates using a `token`
-    static func bearer(_ token: String) -> Auth {
+    public static func bearer(_ token: String) -> Auth {
         return Auth(type: .bearer, key: token)
     }
 }

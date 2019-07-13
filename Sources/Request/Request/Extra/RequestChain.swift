@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension Request {
+public extension Request {
     /// Creates a `Request` to be used in a `RequestChain`
     ///
     /// This `Request` takes `[Data?]` and `[RequestError?]` as parameters.
@@ -51,12 +51,12 @@ internal struct RequestChainBuilder {
 struct RequestChain {
     private let requests: [([Data?], [RequestError?]) -> RequestParam]
     
-    init(@RequestChainBuilder requests: () -> [([Data?], [RequestError?]) -> RequestParam]) {
+    public init(@RequestChainBuilder requests: () -> [([Data?], [RequestError?]) -> RequestParam]) {
         self.requests = requests()
     }
     
     /// Perform the `Request`s in the chain, and optionally respond with the data from each one when complete.
-    func call(_ callback: @escaping ([Data?], [RequestError?]) -> Void = { (_, _) in }) {
+    public func call(_ callback: @escaping ([Data?], [RequestError?]) -> Void = { (_, _) in }) {
         func _call(_ index: Int, data: [Data?], errors: [RequestError?], callback: @escaping ([Data?], [RequestError?]) -> Void) {
             var params = self.requests[index](data, errors)
             if !(params is CombinedParams) {

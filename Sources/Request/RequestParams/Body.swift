@@ -25,18 +25,18 @@ import Foundation
 ///         Body("myData")
 ///     }
 public struct Body: RequestParam {
-    var type: RequestParamType = .body
-    var key: String?
-    var value: Any?
-    var children: [RequestParam]?
+    public var type: RequestParamType = .body
+    public var key: String?
+    public var value: Any?
+    public var children: [RequestParam]?
     
     /// Creates the `Body` from key-value pairs
-    init(_ dict: [String:Any]) {
+    public init(_ dict: [String:Any]) {
         self.value = try? JSONSerialization.data(withJSONObject: dict, options: .prettyPrinted)
     }
     
     /// Creates the `Body` from a `String`
-    init(_ string: String) {
+    public init(_ string: String) {
         self.value = string.data(using: .utf8)
     }
 }

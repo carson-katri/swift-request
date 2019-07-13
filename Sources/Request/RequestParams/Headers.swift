@@ -50,13 +50,11 @@ public extension Header {
     }
     
     /// The address of the previous page which requested the current one
-    /// - Parameter url: The URL of the previous page
     static func Referer(_ url: String) -> HeaderParam {
         return HeaderParam(key: "Referer", value: url)
     }
     
     /// Sets the user agent string
-    /// - Parameter userAgent: The `UserAgent` (a `String`)
     static func UserAgent(_ userAgent: UserAgent) -> HeaderParam {
         return HeaderParam(key: "User-Agent", value: userAgent.rawValue)
     }

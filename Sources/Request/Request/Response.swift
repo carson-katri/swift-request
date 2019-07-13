@@ -11,20 +11,20 @@ import SwiftUI
 import Combine
 
 /// A `BindableObject` that allows you to use a `Request` with `SwiftUI` more easily.
-final class Response: BindableObject {
-    let didChange = PassthroughSubject<Response, Never>()
+public final class Response: BindableObject {
+    public let didChange = PassthroughSubject<Response, Never>()
     
-    var json: Json? = nil {
+    public var json: Json? = nil {
         didSet {
             didChange.send(self)
         }
     }
-    var string: Json? = nil {
+    public var string: Json? = nil {
         didSet {
             didChange.send(self)
         }
     }
-    var data: Data? = nil {
+    public var data: Data? = nil {
         didSet {
             didChange.send(self)
         }

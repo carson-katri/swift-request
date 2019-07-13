@@ -8,12 +8,12 @@
 import Foundation
 
 public struct HeaderParam: RequestParam {
-    var type: RequestParamType = .header
-    var key: String?
-    var value: Any?
-    var children: [RequestParam]? = nil
+    public var type: RequestParamType = .header
+    public var key: String?
+    public var value: Any?
+    public var children: [RequestParam]? = nil
     
-    init(key: String, value: String) {
+    public init(key: String, value: String) {
         self.key = key
         self.value = value
     }
@@ -22,7 +22,7 @@ public struct HeaderParam: RequestParam {
 /// Creates a `HeaderParam` for any number of different headers
 public struct Header {
     /// Sets the value for any header
-    static func `Any`(key: String, value: String) -> HeaderParam {
+    public static func `Any`(key: String, value: String) -> HeaderParam {
         return HeaderParam(key: key, value: value)
     }
 }
