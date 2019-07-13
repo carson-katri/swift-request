@@ -192,5 +192,6 @@ You can use `.string`, `.int`, `.double`, `.bool`, `.json` and `.property` to re
 ## Contributing
 See [CONTRIBUTING](CONTRIBUTING.md)
 
+
 ## License
 See [LICENSE](LICENSE)

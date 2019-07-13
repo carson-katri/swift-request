@@ -46,4 +46,4 @@ struct ContentView : View {
 }
 ```
 #### Result:
-![Result](Resources/todolist.png)
+![Result](todolist.png)
