@@ -121,18 +121,18 @@ For more information, see [RequestBuilder.swift](Sources/Request/RequestBuilder.
 `RequestGroup` can be used to run multiple `Request`s *simulataneously*. You get a response when each `Request` completes (or fails)
 ```swift
 RequestGroup {
-Request {
-Url("https://jsonplaceholder.typicode.com/todos")
-}
-Request {
-Url("https://jsonplaceholder.typicode.com/posts")
-}
-Request {
-Url("https://jsonplaceholder.typicode.com/todos/1")
-}
+    Request {
+        Url("https://jsonplaceholder.typicode.com/todos")
+    }
+    Request {
+        Url("https://jsonplaceholder.typicode.com/posts")
+    }
+    Request {
+        Url("https://jsonplaceholder.typicode.com/todos/1")
+    }
 }
 .onData { (index, data) in
-...
+    ...
 }
 .call()
 ```
@@ -146,16 +146,16 @@ Url("https://jsonplaceholder.typicode.com/todos/1")
 > **Note:** You must use `Request.chained` to build your `Request`. This gives you access to the data and errors of previous `Request`s.
 ```swift
 RequestChain {
-Request.chained { (data, errors) in
-Url("https://jsonplaceholder.typicode.com/todos")
-}
-Request.chained { (data, errors) in
-let json = Json.Parse(data[0]!)
-return Url("https://jsonplaceholder.typicode.com/todos/\(json?[0]["id"].int ?? 0)")
-}
+    Request.chained { (data, errors) in
+        Url("https://jsonplaceholder.typicode.com/todos")
+    }
+    Request.chained { (data, errors) in
+        let json = Json.Parse(data[0]!)
+        return Url("https://jsonplaceholder.typicode.com/todos/\(json?[0]["id"].int ?? 0)")
+    }
 }
 .call { (data, errors) in
-...
+    ...
 }
 ```
 
@@ -171,7 +171,7 @@ Json.Parse("{\"firstName\":\"Carson\"}".data(using: .utf8))
 Or you can build `Json` by hand:
 ```swift
 Json {
-JsonProperty(key: "firstName", value: "Carson")
+    JsonProperty(key: "firstName", value: "Carson")
 }
 ```
 You can subscript `Json` as you would expect:
