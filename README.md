@@ -3,13 +3,15 @@ Declarative HTTP networking in Swift, perfect for SwiftUI.
 
 [Installation](#installation) - [Getting Started](#getting-started) - [Building a Request](#building-a-request) - [How it Works](#how-it-works) - [Request Groups](#request-groups) - [Request Chains](#request-chains) - [Json](#json) - [Contributing](#contributing) - [License](#license)
 
+[Using with SwiftUI](Resources/swiftui.md)
+
 
 ## Installation
 `swift-request` can be installed via the `Swift Package Manager`.
 
 In Xcode 11, go to `File > Swift Packages > Add Package Dependency...`, then paste in `https://github.com/ctkrocks/swift-request`
 
-Now you're ready to [Get Started](#getting-started)
+Now just `import Request`, and you're ready to [Get Started](#getting-started)
 
 
 ## Getting Started
