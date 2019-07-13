@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 
+/// The key-value pairs in a `Json` object
 public struct JsonProperty {
     var key: String
     var value: Any?
@@ -17,17 +18,21 @@ public struct JsonProperty {
         self.value = value
     }
     
+    /// Retrieves the value as a non-optional `String`
     var string: String {
         return value as? String ?? ""
     }
     
+    /// Retrieves the value as a non-optional `Double`
     var double: Double {
         return value as? Double ?? 0.0
     }
+    /// Retrieves the value as a non-optional `Int`
     var int: Int {
         return value as? Int ?? 0
     }
     
+    /// Retrieves the value as a non-optional `Json` object
     var json: Json {
         get {
             let props = value as? [JsonProperty] ?? [JsonProperty]()
@@ -37,6 +42,7 @@ public struct JsonProperty {
         }
     }
     
+    /// Retrieves the value as a non-optional `JsonProperty`
     var property: JsonProperty {
         get {
             return value as? JsonProperty ?? JsonProperty(key: "", value: nil)

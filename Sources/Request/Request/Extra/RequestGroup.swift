@@ -14,6 +14,26 @@ struct RequestGroupBuilder {
     }
 }
 
+/// Performs multiple `Request`s simultaneously, and responds with the result of them all.
+///
+/// All of the `Request`s are run at the same time, and therefore know nothing of the previous `Request`'s response.
+/// To chain requests together to be run in order, see `RequestChain`.
+///
+/// **Example:**
+///
+///     RequestGroup {
+///         Request {
+///             Url("https://api.example.com/todos")
+///         }
+///         Request {
+///             Url("https://api.example.com/todos/1/save")
+///             Method(.post)
+///             Body(["name":"Hello World"])
+///         }
+///     }
+///
+/// You can use `onData`, `onString`, `onJson`, and `onError` like you would with a normal `Request`.
+/// However, it will also return the index of the `Request`, along with the data.
 class RequestGroup {
     let requests: [Request]
     
@@ -46,6 +66,7 @@ class RequestGroup {
         return self
     }
     
+    /// Perform the `Request`s in the group.
     func call() {
         self.requests.enumerated().forEach { (index, _req) in
             var req = _req

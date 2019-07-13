@@ -9,6 +9,24 @@ import Foundation
 import SwiftUI
 import Combine
 
+/// The building block for making an HTTP request
+///
+/// Built using a `@_functionBuilder`, available in Swift 5.1
+///
+/// *Example*:
+///
+///     Request {
+///         Url("https://api.example.com/todos")
+///     }
+///
+/// To make the `Request`, use the method `call`
+///
+/// To accept data from the `Request`, use `onData`, `onString`, and `onJson`.
+///
+/// **See Also:**
+/// `Url`, `Method`, `Header`, `Query`, `Body`
+///
+/// - Precondition: The `Request` body must contain **exactly one** `Url`
 public class Request: BindableObject {
     public var didChange = PassthroughSubject<Request, Never>()
     
@@ -40,26 +58,31 @@ public class Request: BindableObject {
         self.response = Response()
     }
     
+    /// Sets the `onData` callback to be run whenever `Data` is retrieved
     func onData(_ callback: @escaping (Data?) -> Void) -> Request {
         self.onData = callback
         return self
     }
     
+    /// Sets the `onString` callback to be run whenever a `String` is retrieved
     func onString(_ callback: @escaping (String?) -> Void) -> Request {
         self.onString = callback
         return self
     }
     
+    /// Sets the `onData` callback to be run whenever `Json` is retrieved
     func onJson(_ callback: @escaping (Json?) -> Void) -> Request {
         self.onJson = callback
         return self
     }
     
+    /// Handle any `RequestError`s thrown by the `Request`
     func onError(_ callback: @escaping (RequestError) -> Void) -> Request {
         self.onError = callback
         return self
     }
     
+    /// Performs the `Request`, and calls the `onData`, `onString`, `onJson`, and `onError` callbacks when appropriate.
     func call() {
         // Url
         guard var components = URLComponents(string: params.children!.filter({ $0.type == .url })[0].value as! String) else {

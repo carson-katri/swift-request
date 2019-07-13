@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An error returned by the `Request`
 public struct RequestError {
     let statusCode: Int
     let error: Data?

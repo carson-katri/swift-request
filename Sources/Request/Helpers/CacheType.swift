@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// The caching method, to be used with the `Cache-Control` header
 public struct CacheType {
     let value: String
     

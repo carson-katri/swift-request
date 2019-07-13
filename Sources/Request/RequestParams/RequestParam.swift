@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// The type of `RequestParam`, used by the `Request` to form the `URLRequest`
 enum RequestParamType {
     case url
     case method
@@ -23,6 +24,8 @@ internal protocol RequestParam {
     var children: [RequestParam]? { get }
 }
 
+/// A way to create a custom `RequestParam`
+/// - Important: You will most likely want to use one of the builtin `RequestParam`s, such as: `Url`, `Method`, `Header`, `Query`, or `Body`.
 public struct AnyParam: RequestParam {
     var type: RequestParamType
     var key: String?

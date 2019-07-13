@@ -7,6 +7,8 @@
 
 import Foundation
 
+/// Sets the URL of the `Request`.
+/// - Precondition: Only use one URL in your `Request`. To group or chain requests, use a `RequestGroup` or `RequestChain`.
 public struct Url: RequestParam {
     internal var type: RequestParamType = .url
     internal var key: String? = nil

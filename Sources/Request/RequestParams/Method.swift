@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// The method of the HTTP request, such as `GET` or `POST`
 public enum MethodType: String {
     case get = "GET"
     case head = "HEAD"
@@ -19,6 +20,7 @@ public enum MethodType: String {
     case patch = "PATCH"
 }
 
+/// Sets the method of the `Request`
 public struct Method: RequestParam {
     var type: RequestParamType = .method
     var key: String?

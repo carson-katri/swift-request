@@ -19,7 +19,9 @@ public struct HeaderParam: RequestParam {
     }
 }
 
+/// Creates a `HeaderParam` for any number of different headers
 public struct Header {
+    /// Sets the value for any header
     static func `Any`(key: String, value: String) -> HeaderParam {
         return HeaderParam(key: key, value: value)
     }

@@ -7,8 +7,29 @@
 
 import Foundation
 
+/// A representation of a JSON object that is more robust than `[String:Any]`
+///
+/// `Json` is used as the response type in the `onJson` callback on a `Request` object.
+///
+/// You can create `Json` by parsing a `String` or `Data`:
+///
+///     Json.Parse("{\"firstName\":\"Carson\"}")
+///     Json.Parse("{\"firstName\":\"Carson\"}".data(using: .utf8))
+///
+/// Or you can create `Json` by hand:
+///
+///     Json {
+///         JsonProperty(key: "firstName", value: "Carson")
+///     }
+///
+/// You can subscript the `Json` as you would expect:
+///
+///     myJson["firstName"].string // "Carson"
+///     myComplexJson[0]["nestedJson"]["id"].int
 public struct Json {
     var properties: [JsonProperty]
+    
+    /// Encodes the `Json` as `Data`
     var data: Data {
         var dict: [String:Any?] = [:]
         self.properties.forEach { prop in
@@ -24,6 +45,7 @@ public struct Json {
         }
         return (try? JSONSerialization.data(withJSONObject: dict, options: .prettyPrinted)) ?? Data()
     }
+    /// Encodes the `Json` as a `String`
     var string: String {
         return String(data: self.data, encoding: .utf8) ?? ""
     }
@@ -40,7 +62,14 @@ public struct Json {
         self.properties = []
     }
     
-    static func Parse(_ string: String) -> Json? {
+    /// Parses `Json` from a `String`
+    ///
+    /// It can handle JSON objects, and arrays of JSON objects.
+    ///
+    ///     Json.Parse("{\"firstName\":\"Carson\"}")
+    ///
+    /// - Parameter string: the JSON string to be parsed
+    public static func Parse(_ string: String) -> Json? {
         var json = Json()
         do {
             let jsonResponse = try JSONSerialization.jsonObject(with: string.data(using: .utf8)!)
@@ -76,16 +105,21 @@ public struct Json {
         return json
     }
     
-    static func Parse(_ data: Data) -> Json? {
+    /// Parses `Json` from a `Data`
+    ///
+    /// This creates the `String` for you, and is really just a convenience version of `Parse` that accepts a `String`
+    ///
+    ///     Json.Parse("{\"firstName\":\"Carson\"}".data(using: .utf8))
+    public static func Parse(_ data: Data) -> Json? {
         guard let string = String(data: data, encoding: .utf8) else {
             return nil
         }
         return self.Parse(string)
     }
     
-    static func Decode<T>(_ type: T.Type, data: Data) -> T where T: Decodable {
+    /*public static func Decode<T>(_ type: T.Type, data: Data) -> T where T: Decodable {
         return try! JSONDecoder().decode(type, from: data)
-    }
+    }*/
     
     subscript(index: Int) -> JsonProperty {
         return properties[index]

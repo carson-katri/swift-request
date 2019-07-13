@@ -10,6 +10,7 @@ import Foundation
 import SwiftUI
 import Combine
 
+/// A `BindableObject` that allows you to use a `Request` with `SwiftUI` more easily.
 final class Response: BindableObject {
     let didChange = PassthroughSubject<Response, Never>()
     

@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// A MIME type to be used with the `Accept` and `Content-Type` headers.
 public enum MediaType: String {
     case json = "application/json"
     case xml = "application/xml"

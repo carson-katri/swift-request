@@ -8,13 +8,18 @@
 
 import SwiftUI
 
-public struct RequestView<Content: View, Placeholder: View> : View {
+/// A view that asynchronously loads data from the web
+///
+/// `RequestView` is powered by a `Request`. It handles loading the data, and you can focus on building your app.
+///
+/// It takes a `Request`, a placeholder and any content you want rendered.
+public struct RequestView<Content, Placeholder> : View where Content: View, Placeholder: View {
     private let request: Request
     private let content: (Data?) -> TupleView<(Content, Placeholder)>
     
     @State private var data: Data? = nil
     
-    init(_ request: Request, @ViewBuilder content: @escaping (Data?) -> TupleView<(Content, Placeholder)>) {
+    public init(_ request: Request, @ViewBuilder content: @escaping (Data?) -> TupleView<(Content, Placeholder)>) {
         self.request = request
         self.content = content
     }
