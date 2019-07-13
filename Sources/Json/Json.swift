@@ -16,13 +16,13 @@ import Foundation
 ///     Json.Parse("{\"firstName\":\"Carson\"}")
 ///     Json.Parse("{\"firstName\":\"Carson\"}".data(using: .utf8))
 ///
-/// Or you can create `Json` by hand:
+/// Or you can build `Json` by hand:
 ///
 ///     Json {
 ///         JsonProperty(key: "firstName", value: "Carson")
 ///     }
 ///
-/// You can subscript the `Json` as you would expect:
+/// You can subscript `Json` as you would expect:
 ///
 ///     myJson["firstName"].string // "Carson"
 ///     myComplexJson[0]["nestedJson"]["id"].int

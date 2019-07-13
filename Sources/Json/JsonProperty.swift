@@ -10,8 +10,8 @@ import SwiftUI
 
 /// The key-value pairs in a `Json` object
 public struct JsonProperty {
-    var key: String
-    var value: Any?
+    public var key: String
+    public var value: Any?
     
     public init(key: String, value: Any?) {
         self.key = key
@@ -31,7 +31,10 @@ public struct JsonProperty {
     public var int: Int {
         return value as? Int ?? 0
     }
-    
+    /// Retrieves the value as a non-optional `Bool`
+    public var bool: Bool {
+        return value as? Bool ?? false
+    }
     /// Retrieves the value as a non-optional `Json` object
     public var json: Json {
         get {
@@ -41,7 +44,6 @@ public struct JsonProperty {
             return json
         }
     }
-    
     /// Retrieves the value as a non-optional `JsonProperty`
     public var property: JsonProperty {
         get {

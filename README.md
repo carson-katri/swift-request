@@ -1,2 +1,189 @@
 # Request
-Declarative HTTP requests, perfect for SwiftUI
+Declarative HTTP networking in Swift, perfect for SwiftUI.
+
+[Installation](#installation) - [Getting Started](#getting-started) - [Building a Request](#building-a-request) - [How it Works](#how-it-works) - [Request Groups](#request-groups) - [Request Chains](#request-chains) - [Json](#json) - [Contributing](#contributing) - [License](#license)
+
+
+## Installation
+`swift-request` can be installed via the `Swift Package Manager`.
+
+In Xcode 11, go to `File > Swift Packages > Add Package Dependency...`, then paste in `https://github.com/ctkrocks/swift-request`
+
+Now you're ready to [Get Started](#getting-started)
+
+
+## Getting Started
+The old way:
+```swift
+var request = URLRequest(url: URL(string: "https://jsonplaceholder.typicode.com/todos")!)
+request.addValue("application/json", forHTTPHeaderField: "Accept")
+let task = URLSession.shared.dataTask(with: url!) { (data, res, err) in
+if let data = data {
+...
+} else if let error = error {
+...
+}
+}
+task.resume()
+```
+The *declarative* way:
+```swift
+Request {
+Url("https://jsonplaceholder.typicode.com/todo")
+Header.Accept(.json)
+}
+.onData { data in
+...
+}
+.onError { error in
+...
+}
+.call()
+```
+The benefit of declaring requests becomes abundantly clear when your data becomes more complex:
+```swift
+Request {
+Url("https://jsonplaceholder.typicode.com/posts")
+Method(.post)
+Header.ContentType(.json)
+Body(Json {
+JsonProperty(key: "title", value: "foo")
+JsonProperty(key: "body", value: "bar")
+JsonProperty(key: "usedId", value: 1)
+}.string)
+}
+```
+
+
+## Building a Request
+There are many different tools available to build a `Request`:
+- `Url`
+
+Extractly one must be present in each `Request`
+```swift
+Url("https://example.com")
+```
+- `Method`
+
+Sets the `MethodType` of the `Request` (`.get` by default)
+```swift
+Method(.get) // Available: .get, .head, .post, .put, .delete, .connect, .options, .trace, and .patch 
+```
+- `Header`
+
+Sets an HTTP header field
+```swift
+Header.Any(key: "Custom-Header", value: "value123")
+Header.Accept(.json)
+Header.Authorization(.basic(username: "carsonkatri", password: "password123"))
+Header.CacheControl(.noCache)
+Header.ContentLength(16)
+Header.ContentType(.xml)
+Header.Host("en.example.com", port: "8000")
+Header.Origin("www.example.com")
+Header.Referer("redirectfrom.example.com")
+Header.UserAgent(.firefoxMac)
+```
+- `Query`
+
+Creates the query string
+```swift
+Query(["key": "value"]) // ?key=value
+```
+- `Body`
+
+Sets the request body
+```swift
+Body(["key": "value"])
+Body("myBodyContent")
+Body(Json {
+JsonProperty(key: "firstName", value: "Carson")
+}.string)
+```
+- `RequestParam`
+
+Add a param directly
+> **Important:** You must create the logic to handle a custom `RequestParam`. You may also consider adding a case to `RequestParamType`. If you think your custom parameter may be useful for others, see [Contributing](#contributing)
+
+
+## How it Works
+The body of the `Request` is built using the `RequestBuilder` `@_functionBuilder`.
+
+It merges each `RequestParam` in the body into one `CombinedParam` object. This contains all the other params as children.
+
+When you run `.call()`, the children are filtered to find the `Url`, and any other optional parameters that may have been included.
+
+For more information, see [RequestBuilder.swift](Sources/Request/RequestBuilder.swift) and [Request.swift](Sources/Request/Request.swift)
+
+
+## Request Groups
+`RequestGroup` can be used to run multiple `Request`s *simulataneously*. You get a response when each `Request` completes (or fails)
+```swift
+RequestGroup {
+Request {
+Url("https://jsonplaceholder.typicode.com/todos")
+}
+Request {
+Url("https://jsonplaceholder.typicode.com/posts")
+}
+Request {
+Url("https://jsonplaceholder.typicode.com/todos/1")
+}
+}
+.onData { (index, data) in
+...
+}
+.call()
+```
+
+
+## Request Chains
+`RequestChain` is used to run multiple `Request`s *one at a time*. When one completes, it passes its data on to the next `Request`, so you can use it to build the `Request`.
+
+`RequestChain.call` can optionally accept a callback that gives you all the data of every `Request` when completed.
+
+> **Note:** You must use `Request.chained` to build your `Request`. This gives you access to the data and errors of previous `Request`s.
+```swift
+RequestChain {
+Request.chained { (data, errors) in
+Url("https://jsonplaceholder.typicode.com/todos")
+}
+Request.chained { (data, errors) in
+let json = Json.Parse(data[0]!)
+return Url("https://jsonplaceholder.typicode.com/todos/\(json?[0]["id"].int ?? 0)")
+}
+}
+.call { (data, errors) in
+...
+}
+```
+
+## Json
+`swift-request` includes support for `Json`.
+`Json` is used as the response type in the `onJson` callback on a `Request` object.
+
+You can create `Json` by parsing a `String` or `Data`:
+```swift
+Json.Parse("{\"firstName\":\"Carson\"}")
+Json.Parse("{\"firstName\":\"Carson\"}".data(using: .utf8))
+```
+Or you can build `Json` by hand:
+```swift
+Json {
+JsonProperty(key: "firstName", value: "Carson")
+}
+```
+You can subscript `Json` as you would expect:
+```swift
+myJson["firstName"].string // "Carson"
+myComplexJson[0]["nestedJson"]["id"].int
+```
+
+You can use `.string`, `.int`, `.double`, `.bool`, `.json` and `.property` to retrieve `JsonProperty` values in a desired type.
+> **Note:** These return *non-optional* values. If you want to check for `nil`, you must cast the `.value` yourself.
+
+## Contributing
+See [CONTRIBUTING](CONTRIBUTING.md)
+
+## License
+See [LICENSE](LICENSE)
