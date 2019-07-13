@@ -120,7 +120,7 @@ It merges each `RequestParam` in the body into one `CombinedParam` object. This 
 
 When you run `.call()`, the children are filtered to find the `Url`, and any other optional parameters that may have been included.
 
-For more information, see [RequestBuilder.swift](Sources/Request/RequestBuilder.swift) and [Request.swift](Sources/Request/Request.swift)
+For more information, see [RequestBuilder.swift](Sources/Request/Request/RequestBuilder.swift) and [Request.swift](Sources/Request/Request/Request.swift)
 
 
 ## Request Groups
