@@ -15,6 +15,7 @@ RequestView(Request {
 }
 ```
 
+## Example:
 Here's an example of loading in a `List` of todos from `jsonplaceholder.typicode.com`:
 ```swift
 struct Todo: Codable {
@@ -27,17 +28,22 @@ struct Todo: Codable {
 ```swift
 struct ContentView: View {
     var body: some View {
-        RequestView(Request {
-            Url("https://jsonplaceholder.typicode.com/todos")
-        }) { data in
-            List(data != nil ? (try! JSONDecoder().decode([Todo].self, from: data!)) : []) { (todo: Todo) in
-                HStack {
-                    Image(systemName: "checkmark.circle" + (todo.completed ? ".fill" : ""))
-                    Text(todo.title)
+        NavigationView {
+            RequestView(Request {
+                Url("https://jsonplaceholder.typicode.com/todos")
+            }) { data in
+                List(data != nil ? (try! JSONDecoder().decode([Todo].self, from: data!)) : []) { (todo: Todo) in
+                    HStack {
+                        Image(systemName: "checkmark.circle" + (todo.completed ? ".fill" : ""))
+                        Text(todo.title)
+                    }
                 }
+                Text("Loading...")
             }
-            Text("Loading...")
+            .navigationBarTitle(Text("Todos"))
         }
     }
 }
 ```
+#### Result:
+![Result](Resources/todolist.png)

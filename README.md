@@ -1,5 +1,4 @@
-# Request
-Declarative HTTP networking in Swift, perfect for SwiftUI.
+![Request](Resources/banner.png)
 
 [Installation](#installation) - [Getting Started](#getting-started) - [Building a Request](#building-a-request) - [How it Works](#how-it-works) - [Request Groups](#request-groups) - [Request Chains](#request-chains) - [Json](#json) - [Contributing](#contributing) - [License](#license)
 
@@ -20,39 +19,39 @@ The old way:
 var request = URLRequest(url: URL(string: "https://jsonplaceholder.typicode.com/todos")!)
 request.addValue("application/json", forHTTPHeaderField: "Accept")
 let task = URLSession.shared.dataTask(with: url!) { (data, res, err) in
-if let data = data {
-...
-} else if let error = error {
-...
-}
+    if let data = data {
+        ...
+    } else if let error = error {
+        ...
+    }
 }
 task.resume()
 ```
 The *declarative* way:
 ```swift
 Request {
-Url("https://jsonplaceholder.typicode.com/todo")
-Header.Accept(.json)
+    Url("https://jsonplaceholder.typicode.com/todo")
+    Header.Accept(.json)
 }
 .onData { data in
-...
+    ...
 }
 .onError { error in
-...
+    ...
 }
 .call()
 ```
 The benefit of declaring requests becomes abundantly clear when your data becomes more complex:
 ```swift
 Request {
-Url("https://jsonplaceholder.typicode.com/posts")
-Method(.post)
-Header.ContentType(.json)
-Body(Json {
-JsonProperty(key: "title", value: "foo")
-JsonProperty(key: "body", value: "bar")
-JsonProperty(key: "usedId", value: 1)
-}.string)
+    Url("https://jsonplaceholder.typicode.com/posts")
+    Method(.post)
+    Header.ContentType(.json)
+    Body(Json {
+        JsonProperty(key: "title", value: "foo")
+        JsonProperty(key: "body", value: "bar")
+        JsonProperty(key: "usedId", value: 1)
+    }.string)
 }
 ```
 
@@ -99,7 +98,7 @@ Sets the request body
 Body(["key": "value"])
 Body("myBodyContent")
 Body(Json {
-JsonProperty(key: "firstName", value: "Carson")
+    JsonProperty(key: "firstName", value: "Carson")
 }.string)
 ```
 - `RequestParam`
