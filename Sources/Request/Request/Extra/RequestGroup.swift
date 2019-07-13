@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Json
 
 @_functionBuilder
 internal struct RequestGroupBuilder {

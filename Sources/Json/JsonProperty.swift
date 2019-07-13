@@ -51,11 +51,11 @@ public struct JsonProperty {
         }
     }
     
-    subscript(index: Int) -> JsonProperty {
+    public subscript(index: Int) -> JsonProperty {
         return (value as! [JsonProperty])[index]
     }
     
-    subscript(keyParam: String) -> JsonProperty {
+    public subscript(keyParam: String) -> JsonProperty {
         return (value as! [JsonProperty]).filter({ $0.key == keyParam }).first!
     }
 }

@@ -6,7 +6,8 @@
 //
 
 import XCTest
-@testable import Request
+import Combine
+@testable import Json
 
 class JsonTests: XCTestCase {
     func testBuild() {

@@ -11,6 +11,9 @@ let package = Package(
         .library(
             name: "Request",
             targets: ["Request"]),
+        .library(
+            name: "Json",
+            targets: ["Json"])
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -20,10 +23,13 @@ let package = Package(
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
         .target(
-            name: "Request",
+            name: "Json",
             dependencies: []),
+        .target(
+            name: "Request",
+            dependencies: ["Json"]),
         .testTarget(
             name: "RequestTests",
-            dependencies: ["Request"]),
+            dependencies: ["Request", "Json"]),
     ]
 )
