@@ -1,5 +1,12 @@
 ![Request](Resources/banner.png)
 
+![swift 5.1](https://img.shields.io/badge/swift-5.1-blue.svg)
+![SwiftUI](https://img.shields.io/badge/-SwiftUI-blue.svg)
+![iOS](https://img.shields.io/badge/os-iOS-green.svg)
+![macOS](https://img.shields.io/badge/os-macOS-green.svg)
+![tvOS](https://img.shields.io/badge/os-tvOS-green.svg)
+![build status](https://api.travis-ci.com/carson-katri/swift-request.svg)
+
 [Installation](#installation) - [Getting Started](#getting-started) - [Building a Request](#building-a-request) - [How it Works](#how-it-works) - [Request Groups](#request-groups) - [Request Chains](#request-chains) - [Json](#json) - [Contributing](#contributing) - [License](#license)
 
 [Using with SwiftUI](Resources/swiftui.md)
