@@ -8,7 +8,7 @@
 ## Installation
 `swift-request` can be installed via the `Swift Package Manager`.
 
-In Xcode 11, go to `File > Swift Packages > Add Package Dependency...`, then paste in `https://github.com/ctkrocks/swift-request`
+In Xcode 11, go to `File > Swift Packages > Add Package Dependency...`, then paste in `https://github.com/carson-katri/swift-request`
 
 Now just `import Request`, and you're ready to [Get Started](#getting-started)
 
