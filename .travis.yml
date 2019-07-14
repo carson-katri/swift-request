@@ -1,0 +1,4 @@
+os: osx
+osx_image: xcode11
+script:
+  - xcodebuild clean test -project Request.xcodeproj -scheme "Request-Package" -destination "OS=13.0,name=iPhone XS" CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO ONLY_ACTIVE_ARCH=NO -quiet
