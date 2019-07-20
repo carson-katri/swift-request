@@ -29,7 +29,7 @@ import Combine
 ///
 /// - Precondition: The `Request` body must contain **exactly one** `Url`
 public class Request: BindableObject {
-    public var didChange = PassthroughSubject<Request, Never>()
+    public var willChange = PassthroughSubject<Request, Never>()
     
     private var params: CombinedParams
     
@@ -39,8 +39,8 @@ public class Request: BindableObject {
     private var onError: ((RequestError) -> Void)?
     
     public var response: Response = Response() {
-        didSet {
-            didChange.send(self)
+        willSet {
+            willChange.send(self)
         }
     }
     
