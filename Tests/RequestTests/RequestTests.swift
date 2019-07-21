@@ -73,7 +73,7 @@ final class RequestTests: XCTestCase {
         var response: [Todo]? = nil
         var error: Data? = nil
 
-        _ = Request([Todo].self) {
+        _ = AnyRequest<[Todo]> {
             Url("https://jsonplaceholder.typicode.com/todos")
         }
         .onError { err in
