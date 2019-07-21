@@ -13,23 +13,34 @@ import SwiftUI
 /// `RequestView` is powered by a `Request`. It handles loading the data, and you can focus on building your app.
 ///
 /// It takes a `Request`, a placeholder and any content you want rendered.
-public struct RequestView<Content, Placeholder> : View where Content: View, Placeholder: View {
-    private let request: Request
-    private let content: (Data?) -> TupleView<(Content, Placeholder)>
+public typealias RequestView<Content: View, Placeholder: View> = AnyRequestView<Data, Content, Placeholder>
+
+/// `RequestView`, but with Codable support.
+public struct AnyRequestView<ResponseType, Content, Placeholder> : View where ResponseType: Decodable, Content: View, Placeholder: View {
+    private let request: AnyRequest<ResponseType>
+    private let content: (ResponseType?) -> TupleView<(Content, Placeholder)>
     
+    @State private var object: ResponseType? = nil
     @State private var data: Data? = nil
     
-    public init(_ request: Request, @ViewBuilder content: @escaping (Data?) -> TupleView<(Content, Placeholder)>) {
+    public init(_ request: AnyRequest<ResponseType>, @ViewBuilder content: @escaping (ResponseType?) -> TupleView<(Content, Placeholder)>) {
         self.request = request
         self.content = content
     }
     
     public var body: some View {
-        if data != nil {
-            return AnyView(content(data).value.0)
+        if object != nil {
+            return AnyView(content(object).value.0)
+        } else if data != nil {
+            return AnyView(content((data as! ResponseType)).value.0)
         } else {
-            let req = self.request.onData { data in
-                self.data = data
+            var req = self.request.onObject { object in
+                self.object = object
+            }
+            if ResponseType.self == Data.self {
+                req = self.request.onData { data in
+                    self.data = data
+                }
             }
             req.call()
             return AnyView(content(nil).value.1)
