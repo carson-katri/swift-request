@@ -36,6 +36,9 @@ public class Request: BindableObject {
     private var onData: ((Data?) -> Void)?
     private var onString: ((String?) -> Void)?
     private var onJson: ((Json?) -> Void)?
+    //private var objectType: Decodable.Type?
+    private var objectDecoder: ((Data) throws -> Any?)?
+    private var onObject: ((Any?) -> Void)?
     private var onError: ((RequestError) -> Void)?
     
     public var response: Response = Response() {
@@ -52,6 +55,15 @@ public class Request: BindableObject {
             self.params = builder() as! CombinedParams
         }
         self.response = Response()
+    }
+    
+    /// Initialize with support for the `onObject` response.
+    public convenience init<T: Decodable>(_ objectType: T.Type, @RequestBuilder builder: () -> RequestParam) {
+        self.init(builder: builder)
+        //self.objectType = objectType
+        self.objectDecoder = { data in
+            try JSONDecoder().decode(objectType, from: data)
+        }
     }
     
     internal init(params: CombinedParams) {
@@ -80,6 +92,15 @@ public class Request: BindableObject {
     /// Handle any `RequestError`s thrown by the `Request`
     public func onError(_ callback: @escaping (RequestError) -> Void) -> Request {
         self.onError = callback
+        return self
+    }
+    
+    /// Sets the `onObject` callback to be run whenever `Data` is retrieved.
+    /// - Important: You must initialize the `Request` with the `init<T>(_ objectType: T.Type, builder: () -> RequestParam) where T : Decodable` initializer.
+    public func onObject<T: Decodable>(_ callback: @escaping (T?) -> Void) -> Request {
+        self.onObject = { obj in
+            callback(obj as? T)
+        }
         return self
     }
     
@@ -154,6 +175,9 @@ public class Request: BindableObject {
                     } catch {
                         fatalError(error.localizedDescription)
                     }*/
+                }
+                if self.onObject != nil && self.objectDecoder != nil {
+                    self.onObject!(try? self.objectDecoder!(data!))
                 }
                 self.response.data = data
             }
