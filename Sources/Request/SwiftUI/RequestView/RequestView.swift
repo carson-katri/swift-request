@@ -17,6 +17,7 @@ public struct RequestView<Content, Placeholder> : View where Content: View, Plac
     private let request: Request
     private let content: (Data?) -> TupleView<(Content, Placeholder)>
     
+    @State private var oldReq: Request? = nil
     @State private var data: Data? = nil
     
     public init(_ request: Request, @ViewBuilder content: @escaping (Data?) -> TupleView<(Content, Placeholder)>) {
@@ -36,14 +37,15 @@ public struct RequestView<Content, Placeholder> : View where Content: View, Plac
     }
     
     public var body: some View {
-        if data != nil {
-            return AnyView(content(data).value.0)
-        } else {
+        if data == nil || oldReq == nil || oldReq?.id != request.id {
             let req = self.request.onData { data in
+                self.oldReq = self.request
                 self.data = data
             }
             req.call()
             return AnyView(content(nil).value.1)
+        } else {
+            return AnyView(content(data).value.0)
         }
     }
 }
