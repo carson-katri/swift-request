@@ -81,7 +81,6 @@ final class RequestTests: XCTestCase {
             expectation.fulfill()
         }
         .onObject { (todos: [Todo]?) in
-            print(todos)
             response = todos
             expectation.fulfill()
         }
