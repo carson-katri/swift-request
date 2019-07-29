@@ -61,6 +61,38 @@ final class RequestTests: XCTestCase {
         })
     }
     
+    func testObject() {
+        struct Todo: Decodable {
+            let id: Int
+            let userId: Int
+            let title: String
+            let completed: Bool
+        }
+        
+        let expectation = self.expectation(description: #function)
+        var response: [Todo]? = nil
+        var error: Data? = nil
+
+        _ = AnyRequest<[Todo]> {
+            Url("https://jsonplaceholder.typicode.com/todos")
+        }
+        .onError { err in
+            error = err.error
+            expectation.fulfill()
+        }
+        .onObject { (todos: [Todo]?) in
+            response = todos
+            expectation.fulfill()
+        }
+        .call()
+        waitForExpectations(timeout: 10000)
+        if error != nil {
+            XCTAssert(false)
+        } else if response != nil {
+            XCTAssert(true)
+        }
+    }
+    
     func testRequestGroup() {
         let expectation = self.expectation(description: #function)
         var loaded: Int = 0
@@ -115,6 +147,7 @@ final class RequestTests: XCTestCase {
         ("post", testPost),
         ("query", testQuery),
         ("complexRequest", testComplexRequest),
+        ("onObject", testObject),
         ("requestGroup", testRequestGroup),
         ("requestChain", testRequestChain),
     ]
