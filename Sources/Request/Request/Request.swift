@@ -28,14 +28,20 @@ import Combine
 /// `Url`, `Method`, `Header`, `Query`, `Body`
 ///
 /// - Precondition: The `Request` body must contain **exactly one** `Url`
-public class Request: BindableObject {
-    public var willChange = PassthroughSubject<Request, Never>()
+public typealias Request = AnyRequest<Data>
+
+/// Build a `Request` with a `ResponseType` for `BindableObject`
+public class AnyRequest<ResponseType>: BindableObject where ResponseType: Decodable {
+    private let responseType = ResponseType.Type.self
+    
+    public var willChange = PassthroughSubject<AnyRequest, Never>()
     
     private var params: CombinedParams
     
     private var onData: ((Data?) -> Void)?
     private var onString: ((String?) -> Void)?
     private var onJson: ((Json?) -> Void)?
+    private var onObject: ((ResponseType?) -> Void)?
     private var onError: ((RequestError) -> Void)?
     
     public var response: Response = Response() {
@@ -60,25 +66,31 @@ public class Request: BindableObject {
     }
     
     /// Sets the `onData` callback to be run whenever `Data` is retrieved
-    public func onData(_ callback: @escaping (Data?) -> Void) -> Request {
+    public func onData(_ callback: @escaping (Data?) -> Void) -> Self {
         self.onData = callback
         return self
     }
     
     /// Sets the `onString` callback to be run whenever a `String` is retrieved
-    public func onString(_ callback: @escaping (String?) -> Void) -> Request {
+    public func onString(_ callback: @escaping (String?) -> Void) -> Self {
         self.onString = callback
         return self
     }
     
     /// Sets the `onData` callback to be run whenever `Json` is retrieved
-    public func onJson(_ callback: @escaping (Json?) -> Void) -> Request {
+    public func onJson(_ callback: @escaping (Json?) -> Void) -> Self {
         self.onJson = callback
         return self
     }
     
+    /// Sets the `onObject` callback to be run whenever `Data` is retrieved
+    public func onObject(_ callback: @escaping (ResponseType?) -> Void) -> Self {
+        self.onObject = callback
+        return self
+    }
+    
     /// Handle any `RequestError`s thrown by the `Request`
-    public func onError(_ callback: @escaping (RequestError) -> Void) -> Request {
+    public func onError(_ callback: @escaping (RequestError) -> Void) -> Self {
         self.onError = callback
         return self
     }
@@ -154,6 +166,9 @@ public class Request: BindableObject {
                     } catch {
                         fatalError(error.localizedDescription)
                     }*/
+                }
+                if self.onObject != nil {
+                    self.onObject!(try? JSONDecoder().decode(ResponseType.self, from: data!))
                 }
                 self.response.data = data
             }
