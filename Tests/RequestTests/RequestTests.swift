@@ -141,6 +141,34 @@ final class RequestTests: XCTestCase {
         waitForExpectations(timeout: 10000)
         XCTAssert(success)
     }
+    
+    func testAnyRequest() {
+        let expectation = self.expectation(description: #function)
+        var success = false
+        
+        struct Todo: Codable {
+            let title: String
+            let completed: Bool
+            let id: Int
+            let userId: Int
+        }
+        
+        AnyRequest<[Todo]> {
+            Url("https://jsonplaceholder.typicode.com/todos")
+        }
+        .onObject { todos in
+            if todos != nil {
+                success = true
+            }
+            expectation.fulfill()
+        }
+        .onError { err in
+            expectation.fulfill()
+        }
+        .call()
+        waitForExpectations(timeout: 10000)
+        XCTAssert(success)
+    }
 
     static var allTests = [
         ("simpleRequest", testSimpleRequest),
@@ -150,5 +178,6 @@ final class RequestTests: XCTestCase {
         ("onObject", testObject),
         ("requestGroup", testRequestGroup),
         ("requestChain", testRequestChain),
+        ("anyRequest", testAnyRequest),
     ]
 }

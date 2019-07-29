@@ -7,7 +7,7 @@
 ![tvOS](https://img.shields.io/badge/os-tvOS-green.svg)
 ![build status](https://api.travis-ci.com/carson-katri/swift-request.svg)
 
-[Installation](#installation) - [Getting Started](#getting-started) - [Building a Request](#building-a-request) - [How it Works](#how-it-works) - [Request Groups](#request-groups) - [Request Chains](#request-chains) - [Json](#json) - [Contributing](#contributing) - [License](#license)
+[Installation](#installation) - [Getting Started](#getting-started) - [Building a Request](#building-a-request) - [Codable](#codable) - [How it Works](#how-it-works) - [Request Groups](#request-groups) - [Request Chains](#request-chains) - [Json](#json) - [Contributing](#contributing) - [License](#license)
 
 [Using with SwiftUI](Resources/swiftui.md)
 
@@ -119,6 +119,30 @@ Body(Json {
 
 Add a param directly
 > **Important:** You must create the logic to handle a custom `RequestParam`. You may also consider adding a case to `RequestParamType`. If you think your custom parameter may be useful for others, see [Contributing](#contributing)
+
+
+## Codable
+Let's look at an example. Here we define our data:
+```swift
+struct Todo: Codable {
+    let title: String
+    let completed: Bool
+    let id: Int
+    let userId: Int
+}
+```
+Now we can use `AnyRequest` to pull an array of `Todo`s from the server:
+```swift
+AnyRequest<[Todo]> {
+    Url("https://jsonplaceholder.typicode.com/todos")
+}
+.onObject { todos in ... }
+```
+In this case, `onObject` gives us `[Todo]?` in response. It's that easy to get data and decode it.
+
+`Request` is built on `AnyRequest`, so they support all of the same parameters.
+
+> If you use `onObject` on a standard `Request`, you will receive `Data` in response.
 
 
 ## How it Works
