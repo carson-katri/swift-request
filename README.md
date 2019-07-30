@@ -64,7 +64,7 @@ Request {
 Once you've built your `Request`, you can specify the response handlers you want to use.
 `.onData`, `.onString`, `.onJson`, and `.onError` are available.
 You can chain them together to handle multiple response types, as they return a modified version of the `Request`.
-You can also use `.response`, which is a `BindableObject` for use with `Combine` and/or `SwiftUI`.
+You can also use `.response`, which is an `ObservableObject` for use with `Combine` and/or `SwiftUI`.
 
 To perform the `Request`, just use `.call()`. This will run the `Request`, and give you the response when complete.
 

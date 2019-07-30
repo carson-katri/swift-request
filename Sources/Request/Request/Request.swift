@@ -30,8 +30,17 @@ import Combine
 /// - Precondition: The `Request` body must contain **exactly one** `Url`
 public typealias Request = AnyRequest<Data>
 
-/// Build a `Request` with a `ResponseType` for `BindableObject`
-public class AnyRequest<ResponseType>: BindableObject where ResponseType: Decodable {
+/// Tha base class of `Request` to be used with a `Codable` `ResponseType` when using the `onObject` callback
+///
+/// *Example*:
+///
+///     AnyRequest<[MyCodableStruct]> {
+///         Url("https://api.example.com/myData")
+///     }
+///     .onObject { myCodableStructs in
+///         ...
+///     }
+public class AnyRequest<ResponseType>: ObservableObject, Identifiable where ResponseType: Decodable {
     private let responseType = ResponseType.Type.self
     
     public var willChange = PassthroughSubject<AnyRequest, Never>()
@@ -44,11 +53,7 @@ public class AnyRequest<ResponseType>: BindableObject where ResponseType: Decoda
     private var onObject: ((ResponseType?) -> Void)?
     private var onError: ((RequestError) -> Void)?
     
-    public var response: Response = Response() {
-        willSet {
-            willChange.send(self)
-        }
-    }
+    @Published public var response: Response = Response()
     
     public init(@RequestBuilder builder: () -> RequestParam) {
         let params = builder()
