@@ -55,9 +55,9 @@ Request {
     Method(.post)
     Header.ContentType(.json)
     Body(Json {
-        JsonProperty(key: "title", value: "foo")
-        JsonProperty(key: "body", value: "bar")
-        JsonProperty(key: "usedId", value: 1)
+        ("title", "foo")
+        ("body", "bar")
+        ("usedId", 1)
     }.string)
 }
 ```
@@ -112,7 +112,7 @@ Sets the request body
 Body(["key": "value"])
 Body("myBodyContent")
 Body(Json {
-    JsonProperty(key: "firstName", value: "Carson")
+    ("firstName", "Carson")
 }.string)
 ```
 - `RequestParam`
