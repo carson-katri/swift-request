@@ -41,16 +41,14 @@ public typealias Request = AnyRequest<Data>
 ///         ...
 ///     }
 public class AnyRequest<ResponseType>: ObservableObject, Identifiable where ResponseType: Decodable {
-    private let responseType = ResponseType.Type.self
-    
     public var willChange = PassthroughSubject<AnyRequest, Never>()
     
     private var params: CombinedParams
     
-    private var onData: ((Data?) -> Void)?
-    private var onString: ((String?) -> Void)?
-    private var onJson: ((Json?) -> Void)?
-    private var onObject: ((ResponseType?) -> Void)?
+    private var onData: ((Data) -> Void)?
+    private var onString: ((String) -> Void)?
+    private var onJson: ((Json) -> Void)?
+    private var onObject: ((ResponseType) -> Void)?
     private var onError: ((RequestError) -> Void)?
     
     @Published public var response: Response = Response()
@@ -71,25 +69,25 @@ public class AnyRequest<ResponseType>: ObservableObject, Identifiable where Resp
     }
     
     /// Sets the `onData` callback to be run whenever `Data` is retrieved
-    public func onData(_ callback: @escaping (Data?) -> Void) -> Self {
+    public func onData(_ callback: @escaping (Data) -> Void) -> Self {
         self.onData = callback
         return self
     }
     
     /// Sets the `onString` callback to be run whenever a `String` is retrieved
-    public func onString(_ callback: @escaping (String?) -> Void) -> Self {
+    public func onString(_ callback: @escaping (String) -> Void) -> Self {
         self.onString = callback
         return self
     }
     
     /// Sets the `onData` callback to be run whenever `Json` is retrieved
-    public func onJson(_ callback: @escaping (Json?) -> Void) -> Self {
+    public func onJson(_ callback: @escaping (Json) -> Void) -> Self {
         self.onJson = callback
         return self
     }
     
     /// Sets the `onObject` callback to be run whenever `Data` is retrieved
-    public func onObject(_ callback: @escaping (ResponseType?) -> Void) -> Self {
+    public func onObject(_ callback: @escaping (ResponseType) -> Void) -> Self {
         self.onObject = callback
         return self
     }
@@ -158,22 +156,24 @@ public class AnyRequest<ResponseType>: ObservableObject, Identifiable where Resp
             }
             if data != nil {
                 if self.onData != nil {
-                    self.onData!(data)
+                    self.onData!(data!)
                 }
                 if self.onString != nil {
-                    self.onString!(String(data: data!, encoding: .utf8))
+                    if let string = String(data: data!, encoding: .utf8) {
+                        self.onString!(string)
+                    }
                 }
                 if self.onJson != nil {
-                    self.onJson!(Json.Parse(String(data: data!, encoding: .utf8)!))
-                    /*do {
-                        let json = try JSONSerialization.jsonObject(with: data!)
-                        self.onJson!(json)
-                    } catch {
-                        fatalError(error.localizedDescription)
-                    }*/
+                    if let string = String(data: data!, encoding: .utf8) {
+                        if let json = try? Json(string) {
+                            self.onJson!(json)
+                        }
+                    }
                 }
                 if self.onObject != nil {
-                    self.onObject!(try? JSONDecoder().decode(ResponseType.self, from: data!))
+                    if let decoded = try? JSONDecoder().decode(ResponseType.self, from: data!) {
+                        self.onObject!(decoded)
+                    }
                 }
                 self.response.data = data
             }

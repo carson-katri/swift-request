@@ -13,13 +13,13 @@ import Foundation
 ///
 /// You can create `Json` by parsing a `String` or `Data`:
 ///
-///     Json.Parse("{\"firstName\":\"Carson\"}")
-///     Json.Parse("{\"firstName\":\"Carson\"}".data(using: .utf8))
+///     Json("{\"firstName\":\"Carson\"}")
+///     Json("{\"firstName\":\"Carson\"}".data(using: .utf8))
 ///
 /// Or you can build `Json` by hand:
 ///
 ///     Json {
-///         JsonProperty(key: "firstName", value: "Carson")
+///         ("firstName", "Carson")
 ///     }
 ///
 /// You can subscript `Json` as you would expect:
@@ -27,105 +27,126 @@ import Foundation
 ///     myJson["firstName"].string // "Carson"
 ///     myComplexJson[0]["nestedJson"]["id"].int
 public struct Json {
-    public var properties: [JsonProperty]
-    
-    /// Encodes the `Json` as `Data`
-    public var data: Data {
-        var dict: [String:Any?] = [:]
-        self.properties.forEach { prop in
-            var value = prop.value
-            if value is Json {
-                value = (prop.value as! Json).string
-            } else if value is JsonProperty {
-                value = (prop.value as! JsonProperty).string
-            } else if value is [JsonProperty] {
-                value = (prop.value as! [JsonProperty]).map({ $0.string })
-            }
-            dict[prop.key] = value
-        }
-        return (try? JSONSerialization.data(withJSONObject: dict, options: .prettyPrinted)) ?? Data()
-    }
-    /// Encodes the `Json` as a `String`
-    public var string: String {
-        return String(data: self.data, encoding: .utf8) ?? ""
-    }
-    
-    public init(@JsonBuilder builder: () -> JsonProperty) {
-        if builder().value is [JsonProperty] {
-            self.properties = builder().value as! [JsonProperty]
-        } else {
-            self.properties = [builder()]
-        }
-    }
+    private var jsonData: Any
     
     public init() {
-        self.properties = []
+        self.jsonData = [:]
     }
     
-    /// Parses `Json` from a `String`
+    /// Parse a JSON string using `JSONSerialization.jsonObject` to create the `Json`
+    public init(_ parse: String) throws {
+        try self.init(parse.data(using: .utf8)!)
+    }
+    
+    /// Create `Json` from data
+    public init(_ data: Data) throws {
+        self.jsonData = try JSONSerialization.jsonObject(with: data)
+    }
+    
+    /// Create `Json` from an array of tuples
     ///
-    /// It can handle JSON objects, and arrays of JSON objects.
-    ///
-    ///     Json.Parse("{\"firstName\":\"Carson\"}")
-    ///
-    /// - Parameter string: the JSON string to be parsed
-    public static func Parse(_ string: String) -> Json? {
-        var json = Json()
-        do {
-            let jsonResponse = try JSONSerialization.jsonObject(with: string.data(using: .utf8)!)
-            if let jsonArray = jsonResponse as? [String: Any] {
-                jsonArray.forEach { x in
-                    if x.value is [String:Any] || x.value is [[String: Any]] {
-                        let data = try! JSONSerialization.data(withJSONObject: x.value)
-                        json.properties.append(JsonProperty(key: x.key, value: self.Parse(data)?.properties))
-                    } else {
-                        json.properties.append(JsonProperty(key: x.key, value: x.value))
-                    }
-                }
-            } else if let jsonArray = jsonResponse as? [[String: Any]] {
-                jsonArray.forEach { x in
-                    var props: [JsonProperty] = []
-                    x.forEach { y in
-                        if y.value is [String:Any] || y.value is [[String: Any]] {
-                            let data = try! JSONSerialization.data(withJSONObject: y.value)
-                            props.append(JsonProperty(key: y.key, value: self.Parse(data)?.properties))
-                        } else {
-                            props.append(JsonProperty(key: y.key, value: y.value))
-                        }
-                    }
-                    json.properties.append(JsonProperty(key: "", value: props))
-                }
+    ///     Json {
+    ///         ("key", "value")
+    ///         ("nested", Json {
+    ///             ("number", 5)
+    ///         })
+    ///     }
+    public init(@JsonBuilder _ builder: () -> [(String, Any)]) {
+        let tuples = builder()
+        var dict: [String: Any] = [:]
+        tuples.forEach {
+            if $0.1 is Json {
+                dict[$0.0] = ($0.1 as! Json).jsonData
             } else {
-                fatalError("Error parsing JSON; Doesn't conform to [String: Any] or [[String: Any]]")
+                dict[$0.0] = $0.1
             }
-        } catch {
-            print(error)
-            return nil
         }
-        return json
+        self.jsonData = dict
     }
     
-    /// Parses `Json` from a `Data`
+    /// Create `Json` from a single tuple
     ///
-    /// This creates the `String` for you, and is really just a convenience version of `Parse` that accepts a `String`
-    ///
-    ///     Json.Parse("{\"firstName\":\"Carson\"}".data(using: .utf8))
-    public static func Parse(_ data: Data) -> Json? {
-        guard let string = String(data: data, encoding: .utf8) else {
-            return nil
+    ///     Json {
+    ///         ("singleKey", "singleValue")
+    ///     }
+    public init(@JsonBuilder _ builder: () -> (String, Any)) {
+        self.init {
+            [builder()]
         }
-        return self.Parse(string)
     }
     
-    /*public static func Decode<T>(_ type: T.Type, data: Data) -> T where T: Decodable {
-        return try! JSONDecoder().decode(type, from: data)
-    }*/
-    
-    public subscript(index: Int) -> JsonProperty {
-        return properties[index]
+    private init(jsonData: Any) {
+        self.jsonData = jsonData
     }
     
-    public subscript(key: String) -> JsonProperty {
-        return properties.filter({ $0.key == key }).first!
+    public subscript(_ key: String) -> Self {
+        return Self(jsonData: (jsonData as! [String: Any])[key]!)
+    }
+    
+    public subscript(_ index: Int) -> Self {
+        return Self(jsonData: (jsonData as! [Any])[index])
+    }
+    
+    // MARK:  Accessors
+    func accessValue<T>(_ defaultValue: T) -> T {
+        accessOptional(T.self) ?? defaultValue
+    }
+    
+    func accessOptional<T>(_ type: T.Type) -> T? {
+        jsonData as? T
+    }
+    
+    /// The stored value of the `Json`
+    public var value: Any {
+        jsonData
+    }
+    
+    /// The data as a non-optional `String`
+    public var string: String {
+        accessValue("")
+    }
+    /// The data as an optional `String`
+    public var stringOptional: String? {
+        accessOptional(String.self)
+    }
+
+    /// The data as a non-optional `Int`
+    public var int: Int {
+        accessValue(0)
+    }
+    /// The data as an optional `Int`
+    public var intOptional: Int? {
+        accessOptional(Int.self)
+    }
+
+    /// The data as a non-optional `Double`
+    public var double: Double {
+        accessValue(0.0)
+    }
+    /// The data as an optional `Double`
+    public var doubleOptional: Double? {
+        accessOptional(Double.self)
+    }
+    
+    /// The data as a non-optional `Bool`
+    public var bool: Bool {
+        accessValue(false)
+    }
+    /// The data as an optional `Bool`
+    public var boolOptional: Bool? {
+        accessOptional(Bool.self)
+    }
+    
+    /// The data as a non-optional `Array`
+    public var array: [Any] {
+        accessValue([])
+    }
+    /// The data as an optional `Array`
+    public var arrayOptional: [Any]? {
+        accessOptional([Any].self)
+    }
+    /// The number of elements in the data
+    public var count: Int {
+        array.count
     }
 }

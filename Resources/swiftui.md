@@ -47,3 +47,13 @@ struct ContentView : View {
 ```
 #### Result:
 ![Result](todolist.png)
+
+# `RequestImage`
+`RequestImage` asynchronously loads an image from the web. You can pass in a `Request` or just a `Url`:
+```swift
+RequestImage(Request {
+    Url("image.example.com/myImage.png")
+    Header.Authorization(.basic(username: "username", password: "password"))
+})
+RequestImage(Url("image.example.com/myImage.jpg"))
+```

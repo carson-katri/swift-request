@@ -8,102 +8,110 @@
 import XCTest
 import Combine
 @testable import Json
+@testable import Request
 
 class JsonTests: XCTestCase {
-    func testBuild() {
-        self.measure {
-            _ = Json {
-                JsonProperty(key: "firstName", value: "Carson")
-            }
-        }
-    }
-    
-    func testBuildComplex() {
-        self.measure {
-            _ = Json {
-                JsonProperty(key: "firstName", value: "Carson")
-                JsonProperty(key: "lastName", value: "Katri")
-                JsonProperty(key: "likes", value: ["programming", "swiftui", "webdev"])
-                JsonProperty(key: "isEmployed", value: true)
-                JsonProperty(key: "projects", value: [
-                    Json {
-                        JsonProperty(key: "name", value: "swift-request")
-                        JsonProperty(key: "description", value: "Make requests in Swift the declarative way.")
-                    },
-                    Json {
-                        JsonProperty(key: "name", value: "CardKit")
-                        JsonProperty(key: "description", value: "iOS 11 Cards in Swift")
-                    }
-                ])
-            }
-        }
-    }
-    
-    func testEncode() {
+    func testBuilder() {
         let json = Json {
-            JsonProperty(key: "firstName", value: "Carson")
-            JsonProperty(key: "lastName", value: "Katri")
+            ("firstName", "Carson")
+            ("lastName", "Katri")
+            ("otherInfo", Json {
+                ("isEmployed", true)
+                ("starsOnGH", 0)
+                ("weight", 130.5)
+            })
+            ("simpleData", Json {
+                ("whyIsThis", "here?")
+            })
+            ("empty", Json())
         }
-        let string = json.string.replacingOccurrences(of: "\n", with: "").replacingOccurrences(of: " ", with: "")
-        XCTAssertTrue(string == "{\"firstName\":\"Carson\",\"lastName\":\"Katri\"}" || string == "{\"lastName\":\"Katri\",\"firstName\":\"Carson\"}")
+        XCTAssert(json["otherInfo"]["isEmployed"].bool)
     }
     
-    func testEncodePerformance() {
+    func testMeasureBuilder() {
         self.measure {
-            _ = Json {
-                JsonProperty(key: "firstName", value: "Carson")
-                JsonProperty(key: "lastName", value: "Katri")
-            }.string
+            let _ = Json {
+                ("firstName", "Carson")
+                ("lastName", "Katri")
+                ("otherInfo", Json {
+                    ("isEmployed", true)
+                    ("starsOnGH", 0)
+                    ("weight", 130.5)
+                })
+            }
         }
     }
     
-    func testParse() {
-        let json = Json.Parse("{\"firstName\":\"Carson\",\"lastName\":\"Katri\"}")!
-        XCTAssertTrue(json["firstName"].string == "Carson" && json["lastName"].string == "Katri")
-    }
-    
-    func testParsePerformance() {
-        self.measure {
-            _ = Json.Parse("{\"firstName\":\"Carson\",\"lastName\":\"Katri\"}")
-        }
-    }
-    
-    func testParseComplex() {
-        self.measure {
-            _ = Json.Parse(
-"""
+    let complexJson = """
 {
     "firstName": "Carson",
-     "lastName": "Katri",
-     "likes": [
-         "programming",
-         "swiftui",
-         "webdev"
-     ],
-     "isEmployed": true,
-     "projects": [
-         {
-             "name": "swift-request",
-             "description": "Make requests in Swift the declarative way."
-         },
-         {
-             "name": "CardKit",
-             "description": "iOS 11 Cards in Swift"
-         },
-     ]
+    "lastName": "Katri",
+    "likes": [
+        "programming",
+        "swiftui",
+        "webdev"
+    ],
+    "isEmployed": true,
+    "projects": [
+        {
+            "name": "swift-request",
+            "description": "Make requests in Swift the declarative way.",
+            "stars": 91,
+            "passing": true,
+            "codeCov": 0.98
+        },
+        {
+            "name": "CardKit",
+            "description": "iOS 11 Cards in Swift",
+            "stars": 58,
+            "passing": null,
+            "codeCov": null
+        },
+    ],
 }
-""")
+"""
+    func testParse() {
+        guard let _ = try? Json(complexJson) else {
+            XCTAssert(false)
+            return
+        }
+        XCTAssert(true)
+    }
+    
+    func testMeasureParse() {
+        measure {
+            let _ = try? Json(complexJson)
         }
     }
     
-    static var allTests = [
-        ("build", testBuild),
-        ("buildComplex", testBuildComplex),
-        ("encode", testEncode),
-        ("encodePerformance", testEncodePerformance),
+    func testAccessors() {
+        guard let json = try? Json(complexJson) else {
+            XCTAssert(false)
+            return
+        }
+        let _: [Any] = [
+            json["firstName"].string,
+            json["firstName"].stringOptional as Any,
+            json["likes"].array,
+            json["likes"].arrayOptional as Any,
+            json["projects"].count,
+            json["projects"][0]["stars"].int,
+            json["projects"][0]["stars"].intOptional as Any,
+            json["projects"][0]["codeCov"].double,
+            json["projects"][1]["codeCov"].double,
+            json["projects"][1]["codeCov"].doubleOptional as Any,
+            json["projects"][1]["passing"].boolOptional as Any,
+            json.value,
+        ]
+        XCTAssert(true)
+    }
+    
+    static var allTest = [
+        ("builder", testBuilder),
+        ("measureBuilder", testMeasureBuilder),
         ("parse", testParse),
-        ("parsePerformance", testParsePerformance),
-        ("parseComplex", testParseComplex),
+        ("measureParse", testMeasureParse),
+        ("accessors", testAccessors),
     ]
 
 }

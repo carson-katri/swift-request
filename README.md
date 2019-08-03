@@ -188,7 +188,7 @@ RequestChain {
         Url("https://jsonplaceholder.typicode.com/todos")
     }
     Request.chained { (data, errors) in
-        let json = Json.Parse(data[0]!)
+        let json = Json(data[0]!)
         return Url("https://jsonplaceholder.typicode.com/todos/\(json?[0]["id"].int ?? 0)")
     }
 }
@@ -203,13 +203,13 @@ RequestChain {
 
 You can create `Json` by parsing a `String` or `Data`:
 ```swift
-Json.Parse("{\"firstName\":\"Carson\"}")
-Json.Parse("{\"firstName\":\"Carson\"}".data(using: .utf8))
+Json("{\"firstName\":\"Carson\"}")
+Json("{\"firstName\":\"Carson\"}".data(using: .utf8))
 ```
 Or you can build `Json` by hand:
 ```swift
 Json {
-    JsonProperty(key: "firstName", value: "Carson")
+    ("firstName", "Carson")
 }
 ```
 You can subscript `Json` as you would expect:
@@ -218,8 +218,8 @@ myJson["firstName"].string // "Carson"
 myComplexJson[0]["nestedJson"]["id"].int
 ```
 
-You can use `.string`, `.int`, `.double`, `.bool`, `.json` and `.property` to retrieve `JsonProperty` values in a desired type.
-> **Note:** These return *non-optional* values. If you want to check for `nil`, you must cast the `.value` yourself.
+You can use `.string`, `.int`, `.double`, `.bool`, and `.array` to retrieve values in a desired type.
+> **Note:** These return **non-optional** values. If you want to check for `nil`, you can use `.stringOptional`, `.intOptional`, etc.
 
 ## Contributing
 See [CONTRIBUTING](CONTRIBUTING.md)
