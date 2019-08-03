@@ -3,6 +3,6 @@ osx_image: xcode11
 language:
   - swift
 script:
-  - xcodebuild clean test -project Request.xcodeproj -scheme "Request-Package" -destination "OS=13.0,name=iPhone XS" CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO ONLY_ACTIVE_ARCH=NO -quiet
+  - xcodebuild clean test -project Request.xcodeproj -scheme "Request-Package" -destination "OS=13.0,name=iPhone XS" CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO ONLY_ACTIVE_ARCH=NO -quiet -enableCodeCoverage YES -derivedDataPath .build/derivedData
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - bash <(curl -s https://codecov.io/bash) -D .build/derivedData
