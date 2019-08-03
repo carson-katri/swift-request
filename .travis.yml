@@ -5,4 +5,4 @@ language:
 script:
   - xcodebuild clean test -project Request.xcodeproj -scheme "Request-Package" -destination "OS=13.0,name=iPhone XS" CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO ONLY_ACTIVE_ARCH=NO -quiet
 after_success:
-  - bash <(curl -s https://codecov.io/bash) -t aea9733f-4e7d-420d-9c8b-04fe78c1e7aa
+  - bash <(curl -s https://codecov.io/bash)
