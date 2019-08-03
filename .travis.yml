@@ -1,6 +1,6 @@
 os: osx
 osx_image: xcode11
 script:
-  - xcodebuild clean test -project Request.xcodeproj -scheme "Request-Package" -destination "OS=13.0,name=iPhone XS" CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO ONLY_ACTIVE_ARCH=NO -quiet
+  - xcodebuild -scheme Request-Package -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone XS,OS=13.0' build test
 after_success:
   - bash <(curl -s https://codecov.io/bash) -t aea9733f-4e7d-420d-9c8b-04fe78c1e7aa
