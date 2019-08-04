@@ -84,6 +84,20 @@ class JsonTests: XCTestCase {
         }
     }
     
+    func testSubscripts() {
+        guard let json = try? Json(complexJson) else {
+            XCTAssert(false)
+            return
+        }
+        let subscripts: [JsonSubscript] = ["projects", 0, "codeCov"]
+        let _: [Any] = [
+            json["firstName"],
+            json["projects"][0],
+            json["projects", 0, "stars"],
+            json[subscripts]
+        ]
+    }
+    
     func testAccessors() {
         guard let json = try? Json(complexJson) else {
             XCTAssert(false)
@@ -111,6 +125,7 @@ class JsonTests: XCTestCase {
         ("measureBuilder", testMeasureBuilder),
         ("parse", testParse),
         ("measureParse", testMeasureParse),
+        ("subscripts", testSubscripts),
         ("accessors", testAccessors),
     ]
 

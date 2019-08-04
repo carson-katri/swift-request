@@ -26,6 +26,14 @@ import Foundation
 ///
 ///     myJson["firstName"].string // "Carson"
 ///     myComplexJson[0]["nestedJson"]["id"].int
+///
+/// You can also subscript with commas:
+///
+///     myJson[0, "nestedJson", "id"].int
+///
+/// This is the same as:
+///
+///     myJson[0]["nestedJson"]["id"].int
 public struct Json {
     private var jsonData: Any
     
@@ -79,12 +87,24 @@ public struct Json {
         self.jsonData = jsonData
     }
     
-    public subscript(_ key: String) -> Self {
-        return Self(jsonData: (jsonData as! [String: Any])[key]!)
+    // MARK: Subscripts
+    public subscript(_ sub: JsonSubscript) -> Self {
+        switch sub.jsonKey {
+            case .key(let s):
+                return Self(jsonData: (jsonData as! [String: Any])[s]!)
+            case .index(let i):
+                return Self(jsonData: (jsonData as! [Any])[i])
+        }
     }
-    
-    public subscript(_ index: Int) -> Self {
-        return Self(jsonData: (jsonData as! [Any])[index])
+    public subscript(_ subs: [JsonSubscript]) -> Self {
+        var res = self
+        for sub in subs {
+            res = res[sub]
+        }
+        return res
+    }
+    public subscript(_ subs: JsonSubscript...) -> Self {
+        return self[subs]
     }
     
     // MARK:  Accessors
