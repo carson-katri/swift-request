@@ -11,37 +11,6 @@ import Combine
 @testable import Request
 
 class JsonTests: XCTestCase {
-    func testBuilder() {
-        let json = Json {
-            ("firstName", "Carson")
-            ("lastName", "Katri")
-            ("otherInfo", Json {
-                ("isEmployed", true)
-                ("starsOnGH", 0)
-                ("weight", 130.5)
-            })
-            ("simpleData", Json {
-                ("whyIsThis", "here?")
-            })
-            ("empty", Json())
-        }
-        XCTAssert(json["otherInfo"]["isEmployed"].bool)
-    }
-    
-    func testMeasureBuilder() {
-        self.measure {
-            let _ = Json {
-                ("firstName", "Carson")
-                ("lastName", "Katri")
-                ("otherInfo", Json {
-                    ("isEmployed", true)
-                    ("starsOnGH", 0)
-                    ("weight", 130.5)
-                })
-            }
-        }
-    }
-    
     let complexJson = """
 {
     "firstName": "Carson",
@@ -91,8 +60,8 @@ class JsonTests: XCTestCase {
         }
         let subscripts: [JsonSubscript] = ["projects", 0, "codeCov"]
         let _: [Any] = [
-            json["firstName"],
-            json["projects"][0],
+            json.firstName!,
+            json.projects![0]!,
             json["projects", 0, "stars"],
             json[subscripts]
         ]
@@ -104,25 +73,33 @@ class JsonTests: XCTestCase {
             return
         }
         let _: [Any] = [
-            json["firstName"].string,
-            json["firstName"].stringOptional as Any,
-            json["likes"].array,
-            json["likes"].arrayOptional as Any,
-            json["projects"].count,
-            json["projects"][0]["stars"].int,
-            json["projects"][0]["stars"].intOptional as Any,
-            json["projects"][0]["codeCov"].double,
-            json["projects"][1]["codeCov"].double,
-            json["projects"][1]["codeCov"].doubleOptional as Any,
-            json["projects"][1]["passing"].boolOptional as Any,
+            json.firstName!.string,
+            json.firstName!.stringOptional as Any,
+            json.likes!.array,
+            json.likes!.arrayOptional as Any,
+            json.projects!.count,
+            json.projects![0].stars!.int,
+            json.projects![0].stars!.intOptional as Any,
+            json.projects![0].codeCov!.double,
+            json.projects![1].codeCov!.double,
+            json.projects![1].codeCov!.doubleOptional as Any,
+            json.projects![1].passing!.boolOptional as Any,
             json.value,
         ]
         XCTAssert(true)
     }
     
+    func testSet() {
+        guard var json = try? Json(complexJson) else {
+            XCTAssert(false)
+            return
+        }
+        json.firstName = "Cameron"
+        json.likes = ["Hello", "World"]
+        XCTAssertEqual(json["firstName"].string, "Cameron")
+    }
+    
     static var allTest = [
-        ("builder", testBuilder),
-        ("measureBuilder", testMeasureBuilder),
         ("parse", testParse),
         ("measureParse", testMeasureParse),
         ("subscripts", testSubscripts),

@@ -34,8 +34,10 @@ import Foundation
 /// This is the same as:
 ///
 ///     myJson[0]["nestedJson"]["id"].int
+@dynamicMemberLookup
 public struct Json {
-    private var jsonData: Any
+    
+    var jsonData: Any
     
     public init() {
         self.jsonData = [:]
@@ -51,60 +53,64 @@ public struct Json {
         self.jsonData = try JSONSerialization.jsonObject(with: data)
     }
     
-    /// Create `Json` from an array of tuples
-    ///
-    ///     Json {
-    ///         ("key", "value")
-    ///         ("nested", Json {
-    ///             ("number", 5)
-    ///         })
-    ///     }
-    public init(@JsonBuilder _ builder: () -> [(String, Any)]) {
-        let tuples = builder()
-        var dict: [String: Any] = [:]
-        tuples.forEach {
-            if $0.1 is Json {
-                dict[$0.0] = ($0.1 as! Json).jsonData
-            } else {
-                dict[$0.0] = $0.1
-            }
-        }
-        self.jsonData = dict
-    }
-    
-    /// Create `Json` from a single tuple
-    ///
-    ///     Json {
-    ///         ("singleKey", "singleValue")
-    ///     }
-    public init(@JsonBuilder _ builder: () -> (String, Any)) {
-        self.init {
-            [builder()]
-        }
-    }
-    
-    private init(jsonData: Any) {
-        self.jsonData = jsonData
-    }
-    
     // MARK: Subscripts
-    public subscript(_ sub: JsonSubscript) -> Self {
-        switch sub.jsonKey {
-            case .key(let s):
-                return Self(jsonData: (jsonData as! [String: Any])[s]!)
-            case .index(let i):
-                return Self(jsonData: (jsonData as! [Any])[i])
+    public subscript(_ sub: JsonSubscript) -> Self? {
+        get {
+            var json = Self()
+            switch sub.jsonKey {
+                case .key(let s):
+                    json.jsonData = (jsonData as! [String: Any])[s]!
+                case .index(let i):
+                    json.jsonData = (jsonData as! [Any])[i]
+            }
+            return json
+        }
+        set {
+            switch sub.jsonKey {
+                case .key(let s):
+                    var cast = jsonData as! [String: Any]
+                    cast[s] = newValue?.jsonData
+                    jsonData = cast
+                case .index(let i):
+                    var cast = jsonData as! [Any]
+                    cast[i] = newValue?.jsonData as Any
+                    jsonData = cast
+            }
         }
     }
     public subscript(_ subs: [JsonSubscript]) -> Self {
-        var res = self
-        for sub in subs {
-            res = res[sub]
+        get {
+            subs.reduce(self) { $0[$1] }
         }
-        return res
+        set {
+            switch subs.count {
+                case 0:
+                    return
+                case 1:
+                    self[subs.first!] = newValue
+                default:
+                    var newSubs = subs
+                    newSubs.remove(at: 0)
+                    var json = self[subs.first!]
+                    json?[newSubs] = newValue
+            }
+        }
     }
     public subscript(_ subs: JsonSubscript...) -> Self {
-        return self[subs]
+        get {
+            self[subs]
+        }
+        set {
+            self[subs] = newValue
+        }
+    }
+    public subscript(dynamicMember member: String) -> Self? {
+        get {
+            self[member]
+        }
+        set {
+            self[member] = newValue
+        }
     }
     
     // MARK:  Accessors
