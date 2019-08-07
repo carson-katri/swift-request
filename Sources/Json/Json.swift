@@ -54,7 +54,7 @@ public struct Json {
     }
     
     // MARK: Subscripts
-    public subscript(_ sub: JsonSubscript) -> Self? {
+    public subscript(_ sub: JsonSubscript) -> Self {
         get {
             var json = Self()
             switch sub.jsonKey {
@@ -69,11 +69,11 @@ public struct Json {
             switch sub.jsonKey {
                 case .key(let s):
                     var cast = jsonData as! [String: Any]
-                    cast[s] = newValue?.jsonData
+                    cast[s] = newValue.jsonData
                     jsonData = cast
                 case .index(let i):
                     var cast = jsonData as! [Any]
-                    cast[i] = newValue?.jsonData as Any
+                    cast[i] = newValue.jsonData
                     jsonData = cast
             }
         }
@@ -92,7 +92,7 @@ public struct Json {
                     var newSubs = subs
                     newSubs.remove(at: 0)
                     var json = self[subs.first!]
-                    json?[newSubs] = newValue
+                    json[newSubs] = newValue
             }
         }
     }
@@ -104,7 +104,7 @@ public struct Json {
             self[subs] = newValue
         }
     }
-    public subscript(dynamicMember member: String) -> Self? {
+    public subscript(dynamicMember member: String) -> Self {
         get {
             self[member]
         }
