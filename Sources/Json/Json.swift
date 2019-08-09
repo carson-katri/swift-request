@@ -16,16 +16,15 @@ import Foundation
 ///     Json("{\"firstName\":\"Carson\"}")
 ///     Json("{\"firstName\":\"Carson\"}".data(using: .utf8))
 ///
-/// Or you can build `Json` by hand:
-///
-///     Json {
-///         ("firstName", "Carson")
-///     }
-///
 /// You can subscript `Json` as you would expect:
 ///
 ///     myJson["firstName"].string // "Carson"
 ///     myComplexJson[0]["nestedJson"]["id"].int
+///
+/// `Json` supports ` dynamicMemberLookup`, so you can subscript with much clearer syntax:
+///
+///     myJson.firstName.string // "Carson"
+///     myComplexJson[0].nestedJson.id.int
 ///
 /// You can also subscript with commas:
 ///
@@ -41,6 +40,10 @@ public struct Json {
     
     public init() {
         self.jsonData = [:]
+    }
+    
+    public init(_ rawValue: Any) {
+        self.jsonData = rawValue
     }
     
     /// Parse a JSON string using `JSONSerialization.jsonObject` to create the `Json`
@@ -120,6 +123,18 @@ public struct Json {
     
     func accessOptional<T>(_ type: T.Type) -> T? {
         jsonData as? T
+    }
+    
+    /// Stringified version
+    public var data: Data? {
+        try? JSONSerialization.data(withJSONObject: jsonData)
+    }
+    
+    public var stringified: String? {
+        guard let data = data else {
+            return nil
+        }
+        return String(data: data, encoding: .utf8)
     }
     
     /// The stored value of the `Json`

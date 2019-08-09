@@ -99,11 +99,28 @@ class JsonTests: XCTestCase {
         XCTAssertEqual(json["firstName"].string, "Cameron")
     }
     
+    func testStringify() {
+        let _ = Json(["title": "hello", "subtitle": "world"]).data
+        guard let stringified = Json(["title": "hello", "subtitle": "world"]).stringified else {
+            XCTAssert(false)
+            return
+        }
+        XCTAssertEqual(stringified, "{\"title\":\"hello\",\"subtitle\":\"world\"}")
+    }
+    
+    func testMeasureStringify() {
+        self.measure {
+            let _ = Json(["title": "hello", "subtitle": "world"]).stringified
+        }
+    }
+    
     static var allTest = [
         ("parse", testParse),
         ("measureParse", testMeasureParse),
         ("subscripts", testSubscripts),
         ("accessors", testAccessors),
+        ("stringify", testStringify),
+        ("measureStringify", testMeasureStringify),
     ]
 
 }
