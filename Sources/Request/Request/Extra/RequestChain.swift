@@ -14,7 +14,7 @@ public extension Request {
     /// These parameters contain the results of the previously called `Request`s
     ///
     ///     Request.chained { (data, err) in
-    ///         Url("https://api.example.com/todos/\(Json.Parse(data[0]!)![0]["id"].int)")
+    ///         Url("https://api.example.com/todos/\(Json(data[0]!)![0]["id"].int)")
     ///     }
     static func chained(@RequestBuilder builder: @escaping ([Data?], [RequestError?]) -> RequestParam) -> ([Data?], [RequestError?]) -> RequestParam {
         return builder
@@ -43,7 +43,7 @@ public struct RequestChainBuilder {
 ///         }
 ///         // Now we can use the data from that request to make our 2nd
 ///         Request.chained { (data, err) in
-///             Url("https://api.example.com/todos/\(Json.Parse(data[0]!)![0]["id"].int)")
+///             Url("https://api.example.com/todos/\(Json(data[0]!)![0]["id"].int)")
 ///         }
 ///     }
 ///
