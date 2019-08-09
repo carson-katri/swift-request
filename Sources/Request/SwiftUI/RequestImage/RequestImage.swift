@@ -75,9 +75,9 @@ public struct RequestImage: View {
         } else {
             self.request.onData { data in
                 #if os(OSX)
-                self.image = NSImage(data: data!)
+                self.image = NSImage(data: data)
                 #else
-                self.image = UIImage(data: data!)
+                self.image = UIImage(data: data)
                 #endif
             }
             .call()

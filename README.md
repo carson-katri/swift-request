@@ -6,6 +6,7 @@
 ![macOS](https://img.shields.io/badge/os-macOS-green.svg)
 ![tvOS](https://img.shields.io/badge/os-tvOS-green.svg)
 ![build status](https://api.travis-ci.com/carson-katri/swift-request.svg)
+![codecov]()
 
 [Installation](#installation) - [Getting Started](#getting-started) - [Building a Request](#building-a-request) - [Codable](#codable) - [How it Works](#how-it-works) - [Request Groups](#request-groups) - [Request Chains](#request-chains) - [Json](#json) - [Contributing](#contributing) - [License](#license)
 
@@ -54,11 +55,11 @@ Request {
     Url("https://jsonplaceholder.typicode.com/posts")
     Method(.post)
     Header.ContentType(.json)
-    Body(Json {
-        JsonProperty(key: "title", value: "foo")
-        JsonProperty(key: "body", value: "bar")
-        JsonProperty(key: "usedId", value: 1)
-    }.string)
+    Body(Json([
+        "title": "foo",
+        "body": "bar",
+        "usedId": 1
+    ]).stringified)
 }
 ```
 Once you've built your `Request`, you can specify the response handlers you want to use.
@@ -111,9 +112,7 @@ Sets the request body
 ```swift
 Body(["key": "value"])
 Body("myBodyContent")
-Body(Json {
-    JsonProperty(key: "firstName", value: "Carson")
-}.string)
+Body(myJson)
 ```
 - `RequestParam`
 
@@ -188,7 +187,7 @@ RequestChain {
         Url("https://jsonplaceholder.typicode.com/todos")
     }
     Request.chained { (data, errors) in
-        let json = Json.Parse(data[0]!)
+        let json = Json(data[0]!)
         return Url("https://jsonplaceholder.typicode.com/todos/\(json?[0]["id"].int ?? 0)")
     }
 }
@@ -203,23 +202,22 @@ RequestChain {
 
 You can create `Json` by parsing a `String` or `Data`:
 ```swift
-Json.Parse("{\"firstName\":\"Carson\"}")
-Json.Parse("{\"firstName\":\"Carson\"}".data(using: .utf8))
-```
-Or you can build `Json` by hand:
-```swift
-Json {
-    JsonProperty(key: "firstName", value: "Carson")
-}
+Json("{\"firstName\":\"Carson\"}")
+Json("{\"firstName\":\"Carson\"}".data(using: .utf8))
 ```
 You can subscript `Json` as you would expect:
 ```swift
 myJson["firstName"].string // "Carson"
 myComplexJson[0]["nestedJson"]["id"].int
 ```
+It also supports `dynamicMemberLookup`, so you can subscript it like so:
+```swift
+myJson.firstName.string // "Carson"
+myComplexJson[0].nestedJson.id.int
+```
 
-You can use `.string`, `.int`, `.double`, `.bool`, `.json` and `.property` to retrieve `JsonProperty` values in a desired type.
-> **Note:** These return *non-optional* values. If you want to check for `nil`, you must cast the `.value` yourself.
+You can use `.string`, `.int`, `.double`, `.bool`, and `.array` to retrieve values in a desired type.
+> **Note:** These return **non-optional** values. If you want to check for `nil`, you can use `.stringOptional`, `.intOptional`, etc.
 
 ## Contributing
 See [CONTRIBUTING](CONTRIBUTING.md)

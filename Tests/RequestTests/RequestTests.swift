@@ -128,7 +128,7 @@ final class RequestTests: XCTestCase {
                 Url("https://jsonplaceholder.typicode.com/todos")
             }
             Request.chained { (data, err) in
-                let json = Json.Parse(data[0]!)
+                let json = try? Json(data[0]!)
                 return Url("https://jsonplaceholder.typicode.com/todos/\(json?[0]["id"].int ?? 0)")
             }
         }
@@ -157,9 +157,7 @@ final class RequestTests: XCTestCase {
             Url("https://jsonplaceholder.typicode.com/todos")
         }
         .onObject { todos in
-            if todos != nil {
-                success = true
-            }
+            success = true
             expectation.fulfill()
         }
         .onError { err in
