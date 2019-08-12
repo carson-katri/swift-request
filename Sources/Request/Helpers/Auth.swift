@@ -44,7 +44,7 @@ public struct Auth {
 extension Auth {
     /// Authenticates using `username` and `password` directly
     public static func basic(username: String, password: String) -> Auth {
-        return Auth(type: .basic, key: "\(username):\(password)")
+        return Auth(type: .basic, key: Data("\(username):\(password)".utf8).base64EncodedString())
     }
     
     /// Authenticates using a `token`
