@@ -1,4 +1,5 @@
 import XCTest
+import SwiftUI
 import Json
 @testable import Request
 
@@ -164,6 +165,21 @@ final class RequestTests: XCTestCase {
             expectation.fulfill()
         }
         .call()
+        waitForExpectations(timeout: 10000)
+        XCTAssert(success)
+    }
+    
+    func testRequestView() {
+        let expectation = self.expectation(description: #function)
+        var success = false
+        
+        let body = RequestView(Request {
+            Url("https://jsonplaceholder.typicode.com/todos")
+        }, string: { (string: String?) in
+            Text(string!)
+            Text("Loading...")
+        })
+        
         waitForExpectations(timeout: 10000)
         XCTAssert(success)
     }

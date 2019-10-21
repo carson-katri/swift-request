@@ -7,6 +7,8 @@
 //
 
 import SwiftUI
+import Json
+
 
 /// A view that asynchronously loads data from the web
 ///
@@ -20,19 +22,38 @@ public struct RequestView<Content, Placeholder> : View where Content: View, Plac
     @State private var oldReq: Request? = nil
     @State private var data: Data? = nil
     
-    public init(_ request: Request, @ViewBuilder content: @escaping (Data?) -> TupleView<(Content, Placeholder)>) {
+    public init(_ request: Request, @ViewBuilder data: @escaping (Data?) -> TupleView<(Content, Placeholder)>) {
         self.request = request
-        self.content = content
+        self.content = data
+    }
+    
+    public init(_ request: Request, @ViewBuilder string: @escaping (String?) -> TupleView<(Content, Placeholder)>) {
+        self.request = request
+        self.content = { data in
+            guard let data = data else {
+                return string(nil)
+            }
+            return string(String(data: data, encoding: .utf8))
+        }
+    }
+    
+    public init(_ request: Request, @ViewBuilder json: @escaping (Json?) -> TupleView<(Content, Placeholder)>) {
+        self.request = request
+        self.content = { data in
+            guard let data = data else {
+                return json(nil)
+            }
+            return json(try? Json(data))
+        }
     }
     
     public init<ResponseType: Decodable>(_ type: ResponseType.Type, _ request: Request, @ViewBuilder content: @escaping (ResponseType?) -> TupleView<(Content, Placeholder)>) {
         self.request = request
         self.content = { data in
-            var object: ResponseType? = nil
-            if data != nil {
-                object = try? JSONDecoder().decode(type, from: data!)
+            guard let data = data else {
+                return content(nil)
             }
-            return content(object)
+            return content(try? JSONDecoder().decode(type, from: data))
         }
     }
     

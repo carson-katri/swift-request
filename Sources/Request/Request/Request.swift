@@ -145,11 +145,11 @@ public class AnyRequest<ResponseType>: ObservableObject, Identifiable where Resp
         
         // PERFORM REQUEST
         URLSession.shared.dataTask(with: request) { data, res, err in
-            if res != nil {
-                let statusCode = (res as! HTTPURLResponse).statusCode
+            if let httpURLRes = res as? HTTPURLResponse {
+                let statusCode = httpURLRes.statusCode
                 if statusCode < 200 || statusCode >= 300 {
-                    if self.onError != nil {
-                        self.onError!(RequestError(statusCode: statusCode, error: data))
+                    if let onError = self.onError {
+                        onError(RequestError(statusCode: statusCode, error: data))
                         return
                     }
                 }
