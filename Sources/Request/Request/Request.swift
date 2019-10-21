@@ -154,25 +154,25 @@ public class AnyRequest<ResponseType>: ObservableObject, Identifiable where Resp
                     }
                 }
             }
-            if data != nil {
-                if self.onData != nil {
-                    self.onData!(data!)
+            if let data = data {
+                if let onData = self.onData {
+                    onData(data)
                 }
-                if self.onString != nil {
-                    if let string = String(data: data!, encoding: .utf8) {
-                        self.onString!(string)
+                if let onString = self.onString {
+                    if let string = String(data: data, encoding: .utf8) {
+                        onString(string)
                     }
                 }
-                if self.onJson != nil {
-                    if let string = String(data: data!, encoding: .utf8) {
+                if let onJson = self.onJson {
+                    if let string = String(data: data, encoding: .utf8) {
                         if let json = try? Json(string) {
-                            self.onJson!(json)
+                            onJson(json)
                         }
                     }
                 }
-                if self.onObject != nil {
-                    if let decoded = try? JSONDecoder().decode(ResponseType.self, from: data!) {
-                        self.onObject!(decoded)
+                if let onObject = self.onObject {
+                    if let decoded = try? JSONDecoder().decode(ResponseType.self, from: data) {
+                        onObject(decoded)
                     }
                 }
                 self.response.data = data

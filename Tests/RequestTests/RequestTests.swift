@@ -1,6 +1,4 @@
 import XCTest
-import SwiftUI
-import Combine
 import Json
 @testable import Request
 
@@ -31,11 +29,22 @@ final class RequestTests: XCTestCase {
             Url("https://jsonplaceholder.typicode.com/todos")
         })
     }
-    
-    func testPost() {
+
+    func testRequestWithCondition() {
         performRequest(Request {
             Url("https://jsonplaceholder.typicode.com/todos")
-            Method(.post)
+            if true {
+                Method(.post)
+            }
+        })
+    }
+
+    func testPost() {
+        // Workaround for 'ambiguous reference' error.
+        let method = Method(.post)
+        performRequest(Request {
+            Url("https://jsonplaceholder.typicode.com/todos")
+            method
             Body([
                 "title": "My Post",
                 "completed": true,
