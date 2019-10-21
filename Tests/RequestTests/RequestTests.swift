@@ -29,7 +29,16 @@ final class RequestTests: XCTestCase {
             Url("https://jsonplaceholder.typicode.com/todos")
         })
     }
-    
+
+    func testRequestWithCondition() {
+        performRequest(Request {
+            Url("https://jsonplaceholder.typicode.com/todos")
+            if true {
+                Method(.post)
+            }
+        })
+    }
+
     func testPost() {
         // Workaround for 'ambiguous reference' error.
         let method = Method(.post)
