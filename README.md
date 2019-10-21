@@ -5,9 +5,10 @@
 ![iOS](https://img.shields.io/badge/os-iOS-green.svg)
 ![macOS](https://img.shields.io/badge/os-macOS-green.svg)
 ![tvOS](https://img.shields.io/badge/os-tvOS-green.svg)
-![build status](https://api.travis-ci.com/carson-katri/swift-request.svg)
+[![Build Status](https://travis-ci.com/carson-katri/swift-request.svg?branch=master)](https://travis-ci.com/carson-katri/swift-request)
+[![codecov](https://codecov.io/gh/carson-katri/swift-request/branch/master/graph/badge.svg)](https://codecov.io/gh/carson-katri/swift-request)
 
-[Installation](#installation) - [Getting Started](#getting-started) - [Building a Request](#building-a-request) - [How it Works](#how-it-works) - [Request Groups](#request-groups) - [Request Chains](#request-chains) - [Json](#json) - [Contributing](#contributing) - [License](#license)
+[Installation](#installation) - [Getting Started](#getting-started) - [Building a Request](#building-a-request) - [Codable](#codable) - [How it Works](#how-it-works) - [Request Groups](#request-groups) - [Request Chains](#request-chains) - [Json](#json) - [Contributing](#contributing) - [License](#license)
 
 [Using with SwiftUI](Resources/swiftui.md)
 
@@ -54,17 +55,17 @@ Request {
     Url("https://jsonplaceholder.typicode.com/posts")
     Method(.post)
     Header.ContentType(.json)
-    Body(Json {
-        JsonProperty(key: "title", value: "foo")
-        JsonProperty(key: "body", value: "bar")
-        JsonProperty(key: "usedId", value: 1)
-    }.string)
+    Body(Json([
+        "title": "foo",
+        "body": "bar",
+        "usedId": 1
+    ]).stringified)
 }
 ```
 Once you've built your `Request`, you can specify the response handlers you want to use.
 `.onData`, `.onString`, `.onJson`, and `.onError` are available.
 You can chain them together to handle multiple response types, as they return a modified version of the `Request`.
-You can also use `.response`, which is a `BindableObject` for use with `Combine` and/or `SwiftUI`.
+You can also use `.response`, which is an `ObservableObject` for use with `Combine` and/or `SwiftUI`.
 
 To perform the `Request`, just use `.call()`. This will run the `Request`, and give you the response when complete.
 
@@ -111,14 +112,36 @@ Sets the request body
 ```swift
 Body(["key": "value"])
 Body("myBodyContent")
-Body(Json {
-    JsonProperty(key: "firstName", value: "Carson")
-}.string)
+Body(myJson)
 ```
 - `RequestParam`
 
 Add a param directly
 > **Important:** You must create the logic to handle a custom `RequestParam`. You may also consider adding a case to `RequestParamType`. If you think your custom parameter may be useful for others, see [Contributing](#contributing)
+
+
+## Codable
+Let's look at an example. Here we define our data:
+```swift
+struct Todo: Codable {
+    let title: String
+    let completed: Bool
+    let id: Int
+    let userId: Int
+}
+```
+Now we can use `AnyRequest` to pull an array of `Todo`s from the server:
+```swift
+AnyRequest<[Todo]> {
+    Url("https://jsonplaceholder.typicode.com/todos")
+}
+.onObject { todos in ... }
+```
+In this case, `onObject` gives us `[Todo]?` in response. It's that easy to get data and decode it.
+
+`Request` is built on `AnyRequest`, so they support all of the same parameters.
+
+> If you use `onObject` on a standard `Request`, you will receive `Data` in response.
 
 
 ## How it Works
@@ -164,7 +187,7 @@ RequestChain {
         Url("https://jsonplaceholder.typicode.com/todos")
     }
     Request.chained { (data, errors) in
-        let json = Json.Parse(data[0]!)
+        let json = Json(data[0]!)
         return Url("https://jsonplaceholder.typicode.com/todos/\(json?[0]["id"].int ?? 0)")
     }
 }
@@ -179,23 +202,22 @@ RequestChain {
 
 You can create `Json` by parsing a `String` or `Data`:
 ```swift
-Json.Parse("{\"firstName\":\"Carson\"}")
-Json.Parse("{\"firstName\":\"Carson\"}".data(using: .utf8))
-```
-Or you can build `Json` by hand:
-```swift
-Json {
-    JsonProperty(key: "firstName", value: "Carson")
-}
+Json("{\"firstName\":\"Carson\"}")
+Json("{\"firstName\":\"Carson\"}".data(using: .utf8))
 ```
 You can subscript `Json` as you would expect:
 ```swift
 myJson["firstName"].string // "Carson"
 myComplexJson[0]["nestedJson"]["id"].int
 ```
+It also supports `dynamicMemberLookup`, so you can subscript it like so:
+```swift
+myJson.firstName.string // "Carson"
+myComplexJson[0].nestedJson.id.int
+```
 
-You can use `.string`, `.int`, `.double`, `.bool`, `.json` and `.property` to retrieve `JsonProperty` values in a desired type.
-> **Note:** These return *non-optional* values. If you want to check for `nil`, you must cast the `.value` yourself.
+You can use `.string`, `.int`, `.double`, `.bool`, and `.array` to retrieve values in a desired type.
+> **Note:** These return **non-optional** values. If you want to check for `nil`, you can use `.stringOptional`, `.intOptional`, etc.
 
 ## Contributing
 See [CONTRIBUTING](CONTRIBUTING.md)

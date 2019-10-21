@@ -1,6 +1,4 @@
 import XCTest
-import SwiftUI
-import Combine
 import Json
 @testable import Request
 
@@ -33,9 +31,11 @@ final class RequestTests: XCTestCase {
     }
     
     func testPost() {
+        // Workaround for 'ambiguous reference' error.
+        let method = Method(.post)
         performRequest(Request {
             Url("https://jsonplaceholder.typicode.com/todos")
-            Method(.post)
+            method
             Body([
                 "title": "My Post",
                 "completed": true,
@@ -128,7 +128,7 @@ final class RequestTests: XCTestCase {
                 Url("https://jsonplaceholder.typicode.com/todos")
             }
             Request.chained { (data, err) in
-                let json = Json.Parse(data[0]!)
+                let json = try? Json(data[0]!)
                 return Url("https://jsonplaceholder.typicode.com/todos/\(json?[0]["id"].int ?? 0)")
             }
         }
@@ -141,6 +141,32 @@ final class RequestTests: XCTestCase {
         waitForExpectations(timeout: 10000)
         XCTAssert(success)
     }
+    
+    func testAnyRequest() {
+        let expectation = self.expectation(description: #function)
+        var success = false
+        
+        struct Todo: Codable {
+            let title: String
+            let completed: Bool
+            let id: Int
+            let userId: Int
+        }
+        
+        AnyRequest<[Todo]> {
+            Url("https://jsonplaceholder.typicode.com/todos")
+        }
+        .onObject { todos in
+            success = true
+            expectation.fulfill()
+        }
+        .onError { err in
+            expectation.fulfill()
+        }
+        .call()
+        waitForExpectations(timeout: 10000)
+        XCTAssert(success)
+    }
 
     static var allTests = [
         ("simpleRequest", testSimpleRequest),
@@ -150,5 +176,6 @@ final class RequestTests: XCTestCase {
         ("onObject", testObject),
         ("requestGroup", testRequestGroup),
         ("requestChain", testRequestChain),
+        ("anyRequest", testAnyRequest),
     ]
 }
