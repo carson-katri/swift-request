@@ -37,7 +37,7 @@ public struct RequestView<Content, Placeholder> : View where Content: View, Plac
     }
     
     public var body: some View {
-        if data == nil || oldReq == nil || oldReq?.id != request.id {
+        if data == nil/* || oldReq == nil || oldReq?.id != request.id*/ {
             let req = self.request.onData { data in
                 self.oldReq = self.request
                 self.data = data

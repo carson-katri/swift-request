@@ -30,6 +30,7 @@ import Combine
 /// - Precondition: The `Request` body must contain **exactly one** `Url`
 public typealias Request = AnyRequest<Data>
 
+// TODO: Fix EXC_BAD_ACCESS instead of workaround with `struct`
 /// Tha base class of `Request` to be used with a `Codable` `ResponseType` when using the `onObject` callback
 ///
 /// *Example*:
@@ -40,8 +41,7 @@ public typealias Request = AnyRequest<Data>
 ///     .onObject { myCodableStructs in
 ///         ...
 ///     }
-public class AnyRequest<ResponseType>: ObservableObject, Identifiable where ResponseType: Decodable {
-    public var willChange = PassthroughSubject<AnyRequest, Never>()
+public struct AnyRequest<ResponseType>/*: ObservableObject, Identifiable*/ where ResponseType: Decodable {
     
     private var params: CombinedParams
     
@@ -51,7 +51,7 @@ public class AnyRequest<ResponseType>: ObservableObject, Identifiable where Resp
     private var onObject: ((ResponseType) -> Void)?
     private var onError: ((RequestError) -> Void)?
     
-    @Published public var response: Response = Response()
+    /*@Published*/ public var response: Response = Response()
     
     public init(@RequestBuilder builder: () -> RequestParam) {
         let params = builder()
@@ -68,34 +68,43 @@ public class AnyRequest<ResponseType>: ObservableObject, Identifiable where Resp
         self.response = Response()
     }
     
+    internal init(params: CombinedParams,
+                  onData: ((Data) -> Void)?,
+                  onString: ((String) -> Void)?,
+                  onJson: ((Json) -> Void)?,
+                  onObject: ((ResponseType) -> Void)?,
+                  onError: ((RequestError) -> Void)?) {
+        self.params = params
+        self.onData = onData
+        self.onString = onString
+        self.onJson = onJson
+        self.onObject = onObject
+        self.onError = onError
+    }
+    
     /// Sets the `onData` callback to be run whenever `Data` is retrieved
     public func onData(_ callback: @escaping (Data) -> Void) -> Self {
-        self.onData = callback
-        return self
+        Self.init(params: params, onData: callback, onString: onString, onJson: onJson, onObject: onObject, onError: onError)
     }
     
     /// Sets the `onString` callback to be run whenever a `String` is retrieved
     public func onString(_ callback: @escaping (String) -> Void) -> Self {
-        self.onString = callback
-        return self
+        Self.init(params: params, onData: onData, onString: callback, onJson: onJson, onObject: onObject, onError: onError)
     }
     
     /// Sets the `onData` callback to be run whenever `Json` is retrieved
     public func onJson(_ callback: @escaping (Json) -> Void) -> Self {
-        self.onJson = callback
-        return self
+        Self.init(params: params, onData: onData, onString: onString, onJson: callback, onObject: onObject, onError: onError)
     }
     
     /// Sets the `onObject` callback to be run whenever `Data` is retrieved
     public func onObject(_ callback: @escaping (ResponseType) -> Void) -> Self {
-        self.onObject = callback
-        return self
+        Self.init(params: params, onData: onData, onString: onString, onJson: onJson, onObject: callback, onError: onError)
     }
     
     /// Handle any `RequestError`s thrown by the `Request`
     public func onError(_ callback: @escaping (RequestError) -> Void) -> Self {
-        self.onError = callback
-        return self
+        Self.init(params: params, onData: onData, onString: onString, onJson: onJson, onObject: onObject, onError: callback)
     }
     
     /// Performs the `Request`, and calls the `onData`, `onString`, `onJson`, and `onError` callbacks when appropriate.
