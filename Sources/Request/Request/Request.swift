@@ -154,14 +154,16 @@ public struct AnyRequest<ResponseType>/*: ObservableObject, Identifiable*/ where
         
         // PERFORM REQUEST
         URLSession.shared.dataTask(with: request) { data, res, err in
-            if res != nil {
-                let statusCode = (res as! HTTPURLResponse).statusCode
+            if let res = res as? HTTPURLResponse {
+                let statusCode = res.statusCode
                 if statusCode < 200 || statusCode >= 300 {
-                    if self.onError != nil {
-                        self.onError!(RequestError(statusCode: statusCode, error: data))
+                    if let onError = self.onError {
+                        onError(RequestError(statusCode: statusCode, error: data))
                         return
                     }
                 }
+            } else if let err = err, let onError = self.onError {
+                onError(RequestError(statusCode: -1, error: err.localizedDescription.data(using: .utf8)))
             }
             if let data = data {
                 if let onData = self.onData {

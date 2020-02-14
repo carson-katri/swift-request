@@ -176,6 +176,23 @@ final class RequestTests: XCTestCase {
         waitForExpectations(timeout: 10000)
         XCTAssert(success)
     }
+    
+    func testError() {
+        let expectation = self.expectation(description: #function)
+        var success = false
+        
+        Request {
+            Url("https://jsonplaceholder.typicode./todos")
+        }
+        .onError { err in
+            print(err)
+            success = true
+            expectation.fulfill()
+        }
+        .call()
+        waitForExpectations(timeout: 10000)
+        XCTAssert(success)
+    }
 
     static var allTests = [
         ("simpleRequest", testSimpleRequest),
@@ -186,5 +203,6 @@ final class RequestTests: XCTestCase {
         ("requestGroup", testRequestGroup),
         ("requestChain", testRequestChain),
         ("anyRequest", testAnyRequest),
+        ("testError", testError),
     ]
 }
