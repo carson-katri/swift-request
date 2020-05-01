@@ -58,7 +58,7 @@ public struct AnyRequest<ResponseType>/*: ObservableObject, Identifiable*/ where
         if !(params is CombinedParams) {
             self.params = CombinedParams(children: [params])
         } else {
-            self.params = builder() as! CombinedParams
+            self.params = params as! CombinedParams
         }
         self.response = Response()
     }
