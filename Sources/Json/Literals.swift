@@ -45,6 +45,8 @@ extension Json: ExpressibleByArrayLiteral {
 
 extension Json: ExpressibleByDictionaryLiteral {
     public init(dictionaryLiteral elements: (String, Any)...) {
-        self.init { elements }
+        jsonData = Dictionary(elements, uniquingKeysWith: { (value1, value2) -> Any in
+            return value1
+        })
     }
 }
