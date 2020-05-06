@@ -54,17 +54,26 @@ class JsonTests: XCTestCase {
     }
     
     func testSubscripts() {
-        guard let json = try? Json(complexJson) else {
+        guard var json = try? Json(complexJson) else {
             XCTAssert(false)
             return
         }
         let subscripts: [JsonSubscript] = ["projects", 0, "codeCov"]
-        let _: [Any] = [
-            json.firstName,
-            json.projects[0],
-            json["projects", 0, "stars"],
-            json[subscripts]
-        ]
+        
+        json[] = 0
+
+        XCTAssertEqual(json["isEmployed"].bool, true)
+        json["isEmployed"] = false
+        XCTAssertEqual(json["isEmployed"].bool, false)
+
+        XCTAssertEqual(json["projects", 0, "stars"].int, 91)
+        json["projects", 0, "stars"] = 10
+        XCTAssertEqual(json["projects", 0, "stars"].int, 10)
+
+        XCTAssertEqual(json[subscripts].double, 0.98)
+        json[subscripts] = 0.49
+        XCTAssertEqual(json[subscripts].double, 0.49)
+
     }
     
     func testAccessors() {
@@ -84,6 +93,7 @@ class JsonTests: XCTestCase {
             json.projects[1].codeCov.double,
             json.projects[1].codeCov.doubleOptional as Any,
             json.projects[1].passing.boolOptional as Any,
+            json.projects[1].passing.bool as Any,
             json.value,
         ]
         XCTAssert(true)
@@ -95,8 +105,14 @@ class JsonTests: XCTestCase {
             return
         }
         json.firstName = "Cameron"
+        json.projects[0].stars = 100
         json.likes = ["Hello", "World"]
+        json.projects[1] = ["name" : "hello", "description" : "world"]
         XCTAssertEqual(json["firstName"].string, "Cameron")
+        XCTAssertEqual(json["projects"][0].stars.int, 100)
+        XCTAssertEqual(json["likes"][0].string, "Hello")
+        XCTAssertEqual(json["likes"][1].string, "World")
+        XCTAssertEqual(json["projects"][1]["name"].string, "hello")
     }
     
     func testStringify() {
@@ -119,6 +135,7 @@ class JsonTests: XCTestCase {
         ("measureParse", testMeasureParse),
         ("subscripts", testSubscripts),
         ("accessors", testAccessors),
+        ("set", testSet),
         ("stringify", testStringify),
         ("measureStringify", testMeasureStringify),
     ]

@@ -96,6 +96,7 @@ public struct Json {
                     newSubs.remove(at: 0)
                     var json = self[subs.first!]
                     json[newSubs] = newValue
+                    self[subs.first!] = json
             }
         }
     }
