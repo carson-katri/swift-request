@@ -42,7 +42,8 @@ public typealias Request = AnyRequest<Data>
 ///         ...
 ///     }
 public struct AnyRequest<ResponseType>/*: ObservableObject, Identifiable*/ where ResponseType: Decodable {
-    
+    public let combineIdentifier = CombineIdentifier()
+
     private var params: CombinedParams
     
     private var onData: ((Data) -> Void)?
@@ -50,6 +51,7 @@ public struct AnyRequest<ResponseType>/*: ObservableObject, Identifiable*/ where
     private var onJson: ((Json) -> Void)?
     private var onObject: ((ResponseType) -> Void)?
     private var onError: ((RequestError) -> Void)?
+    private var updatePublisher: AnyPublisher<Void,Never>?
     
     /*@Published*/ public var response: Response = Response()
     
@@ -73,42 +75,51 @@ public struct AnyRequest<ResponseType>/*: ObservableObject, Identifiable*/ where
                   onString: ((String) -> Void)?,
                   onJson: ((Json) -> Void)?,
                   onObject: ((ResponseType) -> Void)?,
-                  onError: ((RequestError) -> Void)?) {
+                  onError: ((RequestError) -> Void)?,
+                  updatePublisher: AnyPublisher<Void,Never>?) {
         self.params = params
         self.onData = onData
         self.onString = onString
         self.onJson = onJson
         self.onObject = onObject
         self.onError = onError
+        self.updatePublisher = updatePublisher
     }
     
     /// Sets the `onData` callback to be run whenever `Data` is retrieved
     public func onData(_ callback: @escaping (Data) -> Void) -> Self {
-        Self.init(params: params, onData: callback, onString: onString, onJson: onJson, onObject: onObject, onError: onError)
+        Self.init(params: params, onData: callback, onString: onString, onJson: onJson, onObject: onObject, onError: onError, updatePublisher: updatePublisher)
     }
     
     /// Sets the `onString` callback to be run whenever a `String` is retrieved
     public func onString(_ callback: @escaping (String) -> Void) -> Self {
-        Self.init(params: params, onData: onData, onString: callback, onJson: onJson, onObject: onObject, onError: onError)
+        Self.init(params: params, onData: onData, onString: callback, onJson: onJson, onObject: onObject, onError: onError, updatePublisher: updatePublisher)
     }
     
     /// Sets the `onData` callback to be run whenever `Json` is retrieved
     public func onJson(_ callback: @escaping (Json) -> Void) -> Self {
-        Self.init(params: params, onData: onData, onString: onString, onJson: callback, onObject: onObject, onError: onError)
+        Self.init(params: params, onData: onData, onString: onString, onJson: callback, onObject: onObject, onError: onError, updatePublisher: updatePublisher)
     }
     
     /// Sets the `onObject` callback to be run whenever `Data` is retrieved
     public func onObject(_ callback: @escaping (ResponseType) -> Void) -> Self {
-        Self.init(params: params, onData: onData, onString: onString, onJson: onJson, onObject: callback, onError: onError)
+        Self.init(params: params, onData: onData, onString: onString, onJson: onJson, onObject: callback, onError: onError, updatePublisher: updatePublisher)
     }
     
     /// Handle any `RequestError`s thrown by the `Request`
     public func onError(_ callback: @escaping (RequestError) -> Void) -> Self {
-        Self.init(params: params, onData: onData, onString: onString, onJson: onJson, onObject: onObject, onError: callback)
+        Self.init(params: params, onData: onData, onString: onString, onJson: onJson, onObject: onObject, onError: callback, updatePublisher: updatePublisher)
     }
     
     /// Performs the `Request`, and calls the `onData`, `onString`, `onJson`, and `onError` callbacks when appropriate.
     public func call() {
+        performRequest()
+        if let updatePublisher = self.updatePublisher {
+            updatePublisher.subscribe(self)
+        }
+    }
+
+    private func performRequest() {
         // Url
         guard var components = URLComponents(string: params.children!.filter({ $0.type == .url })[0].value as! String) else {
             fatalError("Missing Url in Request body")
@@ -189,5 +200,40 @@ public struct AnyRequest<ResponseType>/*: ObservableObject, Identifiable*/ where
                 self.response.data = data
             }
         }.resume()
+    }
+
+    /// Sets the `Request` to be performed additional times after the initial `call`
+    public func update<T: Publisher>(publisher: T) -> Self {
+        var newPublisher = publisher
+            .map {_ in Void()}
+            .assertNoFailure()
+            .eraseToAnyPublisher()
+        if let updatePublisher = self.updatePublisher {
+            newPublisher = newPublisher.merge(with: updatePublisher).eraseToAnyPublisher()
+        }
+        return Self.init(params: params, onData: onData, onString: onString, onJson: onJson, onObject: onObject, onError: onError, updatePublisher: newPublisher)
+    }
+
+    /// Sets the `Request` to be repeated periodically after the initial `call`
+    public func update(every seconds: TimeInterval) -> Self {
+        self.update(publisher: Timer.publish(every: seconds, on: .main, in: .common).autoconnect())
+    }
+}
+
+extension AnyRequest : Subscriber {
+    public typealias Input = Void
+    public typealias Failure = Never
+
+    public func receive(subscription: Subscription) {
+        subscription.request(.unlimited)
+    }
+
+    public func receive(_ input: Void) -> Subscribers.Demand {
+        self.performRequest()
+        return .none
+    }
+
+    public func receive(completion: Subscribers.Completion<Never>) {
+        return
     }
 }
