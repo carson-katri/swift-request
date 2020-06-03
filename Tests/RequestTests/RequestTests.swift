@@ -329,6 +329,24 @@ final class RequestTests: XCTestCase {
         XCTAssert(success)
     }
 
+    func testUpdate() {
+        let expectation = self.expectation(description: #function)
+        var numResponses = 0
+
+        Request {
+            Url("https://jsonplaceholder.typicode.com/todos")
+        }
+        .update(every: 1)
+        .onData { data in
+                numResponses += 1
+                if numResponses >= 3 {
+                    expectation.fulfill()
+                }
+        }
+        .call()
+        waitForExpectations(timeout: 10000)
+    }
+
     static var allTests = [
         ("simpleRequest", testSimpleRequest),
         ("post", testPost),
@@ -343,5 +361,6 @@ final class RequestTests: XCTestCase {
         ("requestChainErrors", testRequestChainErrors),
         ("anyRequest", testAnyRequest),
         ("testError", testError),
+        ("testUpdate", testUpdate),
     ]
 }
