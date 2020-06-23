@@ -107,7 +107,7 @@ final class RequestTests: XCTestCase {
         var response: [Todo]? = nil
         var error: Data? = nil
 
-        _ = AnyRequest<[Todo]> {
+        AnyRequest<[Todo]> {
             Url("https://jsonplaceholder.typicode.com/todos")
         }
         .onError { err in
@@ -132,7 +132,7 @@ final class RequestTests: XCTestCase {
         var response: String? = nil
         var error: Data? = nil
 
-        _ = Request {
+        Request {
             Url("https://jsonplaceholder.typicode.com/todos")
         }
         .onError { err in
@@ -157,7 +157,7 @@ final class RequestTests: XCTestCase {
         var response: Json? = nil
         var error: Data? = nil
 
-        _ = Request {
+        Request {
             Url("https://jsonplaceholder.typicode.com/todos")
         }
         .onError { err in
@@ -345,6 +345,25 @@ final class RequestTests: XCTestCase {
         }
         .call()
         waitForExpectations(timeout: 10000)
+    }
+    
+    func testTimeout() {
+        let expectation = self.expectation(description: #function)
+        
+        Request {
+            Url("http://10.255.255.1")
+            Timeout(1, for: .all)
+        }
+        .onError { error in
+            if let err = error.error, let msg = String(data: err, encoding: .utf8) {
+                if msg == "The request timed out." {
+                    expectation.fulfill()
+                }
+            }
+        }
+        .call()
+        
+        waitForExpectations(timeout: 2000)
     }
 
     static var allTests = [

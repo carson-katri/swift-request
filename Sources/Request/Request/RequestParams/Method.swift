@@ -23,9 +23,7 @@ public enum MethodType: String {
 /// Sets the method of the `Request`
 public struct Method: RequestParam {
     public var type: RequestParamType = .method
-    public var key: String?
     public var value: Any?
-    public var children: [RequestParam]? = nil
     
     public init(_ type: MethodType) {
         self.value = type

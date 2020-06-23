@@ -114,6 +114,14 @@ Body(["key": "value"])
 Body("myBodyContent")
 Body(myJson)
 ```
+- `Timeout`
+
+Sets the timeout for a request or resource:
+```swift
+Timeout(60)
+Timeout(60, for: .request)
+Timeout(30, for: .resource)
+```
 - `RequestParam`
 
 Add a param directly
