@@ -355,10 +355,8 @@ final class RequestTests: XCTestCase {
             Timeout(1, for: .all)
         }
         .onError { error in
-            if let err = error.error, let msg = String(data: err, encoding: .utf8) {
-                if msg == "The request timed out." {
-                    expectation.fulfill()
-                }
+            if error.localizedDescription == "The request timed out." {
+                expectation.fulfill()
             }
         }
         .call()
