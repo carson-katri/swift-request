@@ -41,7 +41,7 @@ public class RequestGroup {
     private var onData: ((Int, Data?) -> Void)?
     private var onString: ((Int, String?) -> Void)?
     private var onJson: ((Int, Json?) -> Void)?
-    private var onError: ((Int, RequestError) -> Void)?
+    private var onError: ((Int, Error) -> Void)?
     
     public init(@RequestGroupBuilder requests: () -> [Request]) {
         self.requests = requests()
@@ -62,7 +62,7 @@ public class RequestGroup {
         return self
     }
     
-    public func onError(_ callback: @escaping ((Int, RequestError) -> Void)) -> RequestGroup {
+    public func onError(_ callback: @escaping ((Int, Error) -> Void)) -> RequestGroup {
         self.onError = callback
         return self
     }

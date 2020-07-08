@@ -6,10 +6,10 @@ final class RequestTests: XCTestCase {
     func performRequest(_ request: Request) {
         let expectation = self.expectation(description: #function)
         var response: Data? = nil
-        var error: Data? = nil
+        var error: Error? = nil
         request
         .onError { err in
-            error = err.error
+            error = err
             expectation.fulfill()
         }
         .onData { data in
@@ -105,13 +105,13 @@ final class RequestTests: XCTestCase {
         
         let expectation = self.expectation(description: #function)
         var response: [Todo]? = nil
-        var error: Data? = nil
+        var error: Error? = nil
 
         _ = AnyRequest<[Todo]> {
             Url("https://jsonplaceholder.typicode.com/todos")
         }
         .onError { err in
-            error = err.error
+            error = err
             expectation.fulfill()
         }
         .onObject { (todos: [Todo]?) in
@@ -130,13 +130,13 @@ final class RequestTests: XCTestCase {
     func testString() {
         let expectation = self.expectation(description: #function)
         var response: String? = nil
-        var error: Data? = nil
+        var error: Error? = nil
 
         _ = Request {
             Url("https://jsonplaceholder.typicode.com/todos")
         }
         .onError { err in
-            error = err.error
+            error = err
             expectation.fulfill()
         }
         .onString { result in
@@ -155,13 +155,13 @@ final class RequestTests: XCTestCase {
     func testJson() {
         let expectation = self.expectation(description: #function)
         var response: Json? = nil
-        var error: Data? = nil
+        var error: Error? = nil
 
         _ = Request {
             Url("https://jsonplaceholder.typicode.com/todos")
         }
         .onError { err in
-            error = err.error
+            error = err
             expectation.fulfill()
         }
         .onJson { result in

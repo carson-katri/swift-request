@@ -50,7 +50,7 @@ public struct AnyRequest<ResponseType>/*: ObservableObject, Identifiable*/ where
     private var onString: ((String) -> Void)?
     private var onJson: ((Json) -> Void)?
     private var onObject: ((ResponseType) -> Void)?
-    private var onError: ((RequestError) -> Void)?
+    private var onError: ((Error) -> Void)?
     private var updatePublisher: AnyPublisher<Void,Never>?
     
     /*@Published*/ public var response: Response = Response()
@@ -75,7 +75,7 @@ public struct AnyRequest<ResponseType>/*: ObservableObject, Identifiable*/ where
                   onString: ((String) -> Void)?,
                   onJson: ((Json) -> Void)?,
                   onObject: ((ResponseType) -> Void)?,
-                  onError: ((RequestError) -> Void)?,
+                  onError: ((Error) -> Void)?,
                   updatePublisher: AnyPublisher<Void,Never>?) {
         self.params = params
         self.onData = onData
@@ -106,8 +106,8 @@ public struct AnyRequest<ResponseType>/*: ObservableObject, Identifiable*/ where
         Self.init(params: params, onData: onData, onString: onString, onJson: onJson, onObject: callback, onError: onError, updatePublisher: updatePublisher)
     }
     
-    /// Handle any `RequestError`s thrown by the `Request`
-    public func onError(_ callback: @escaping (RequestError) -> Void) -> Self {
+    /// Handle any `Error`s thrown by the `Request`
+    public func onError(_ callback: @escaping (Error) -> Void) -> Self {
         Self.init(params: params, onData: onData, onString: onString, onJson: onJson, onObject: onObject, onError: callback, updatePublisher: updatePublisher)
     }
     
@@ -174,7 +174,7 @@ public struct AnyRequest<ResponseType>/*: ObservableObject, Identifiable*/ where
                     }
                 }
             } else if let err = err, let onError = self.onError {
-                onError(RequestError(statusCode: -1, error: err.localizedDescription.data(using: .utf8)))
+                onError(err)
             }
             if let data = data {
                 if let onData = self.onData {
