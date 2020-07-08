@@ -26,9 +26,7 @@ import Foundation
 ///     }
 public struct Body: RequestParam {
     public var type: RequestParamType = .body
-    public var key: String?
     public var value: Any?
-    public var children: [RequestParam]?
     
     /// Creates the `Body` from key-value pairs
     public init(_ dict: [String:Any]) {

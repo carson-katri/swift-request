@@ -163,8 +163,26 @@ public struct AnyRequest<ResponseType>/*: ObservableObject, Identifiable*/ where
             request.httpBody = body[0].value as? Data
         }
         
+        // Configuration
+        let configuration = URLSessionConfiguration.default
+        let timeouts = params.children!.filter { $0.type == .timeout }
+        if timeouts.count > 0 {
+            for timeout in timeouts {
+                guard let (source, interval) = timeout.value as? (Timeout.Source, TimeInterval) else {
+                    fatalError("Invalid Timeout \(timeout)")
+                }
+                if source.contains(.request) {
+                    configuration.timeoutIntervalForRequest = interval
+                }
+                if source.contains(.resource) {
+                    configuration.timeoutIntervalForResource = interval
+                }
+            }
+        }
+        
+        
         // PERFORM REQUEST
-        URLSession.shared.dataTask(with: request) { data, res, err in
+        URLSession(configuration: configuration).dataTask(with: request) { data, res, err in
             if let res = res as? HTTPURLResponse {
                 let statusCode = res.statusCode
                 if statusCode < 200 || statusCode >= 300 {

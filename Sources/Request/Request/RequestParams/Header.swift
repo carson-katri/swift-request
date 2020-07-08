@@ -11,7 +11,6 @@ public struct HeaderParam: RequestParam {
     public var type: RequestParamType = .header
     public var key: String?
     public var value: Any?
-    public var children: [RequestParam]? = nil
     
     public init(key: String, value: String) {
         self.key = key
@@ -23,7 +22,7 @@ public struct HeaderParam: RequestParam {
 public struct Header {
     /// Sets the value for any header
     public static func `Any`(key: String, value: String) -> HeaderParam {
-        return HeaderParam(key: key, value: value)
+        HeaderParam(key: key, value: value)
     }
 }
 

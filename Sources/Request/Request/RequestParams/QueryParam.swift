@@ -12,7 +12,6 @@ public struct QueryParam: RequestParam {
     public var type: RequestParamType = .query
     public var key: String?
     public var value: Any?
-    public var children: [RequestParam]?
     
     public init(_ key: String, value: String) {
         self.key = key
@@ -25,7 +24,6 @@ public struct QueryParam: RequestParam {
 /// `[key:value, key2:value2]` becomes `?key=value&key2=value2`
 public struct Query: RequestParam {
     public var type: RequestParamType = .query
-    public var key: String?
     public var value: Any?
     public var children: [RequestParam]? = []
     

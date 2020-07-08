@@ -15,6 +15,7 @@ public enum RequestParamType {
     case body
     case header
     case combined
+    case timeout
 }
 
 /// A parameter used to build the `Request`
@@ -23,6 +24,12 @@ public protocol RequestParam {
     var key: String? { get }
     var value: Any? { get set }
     var children: [RequestParam]? { get }
+}
+
+public extension RequestParam {
+    var key: String? { nil }
+    var value: Any? { nil }
+    var children: [RequestParam]? { nil }
 }
 
 /// A way to create a custom `RequestParam`
