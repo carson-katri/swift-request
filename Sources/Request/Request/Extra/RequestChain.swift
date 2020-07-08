@@ -10,20 +10,20 @@ import Foundation
 public extension Request {
     /// Creates a `Request` to be used in a `RequestChain`
     ///
-    /// This `Request` takes `[Data?]` and `[RequestError?]` as parameters.
+    /// This `Request` takes `[Data?]` and `[Error?]` as parameters.
     /// These parameters contain the results of the previously called `Request`s
     ///
     ///     Request.chained { (data, err) in
     ///         Url("https://api.example.com/todos/\(Json(data[0]!)![0]["id"].int)")
     ///     }
-    static func chained(@RequestBuilder builder: @escaping ([Data?], [RequestError?]) -> RequestParam) -> ([Data?], [RequestError?]) -> RequestParam {
+    static func chained(@RequestBuilder builder: @escaping ([Data?], [Error?]) -> RequestParam) -> ([Data?], [Error?]) -> RequestParam {
         return builder
     }
 }
 
 @_functionBuilder
 public struct RequestChainBuilder {
-    public static func buildBlock(_ requests: (([Data?], [RequestError?]) -> RequestParam)...) -> [([Data?], [RequestError?]) -> RequestParam] {
+    public static func buildBlock(_ requests: (([Data?], [Error?]) -> RequestParam)...) -> [([Data?], [Error?]) -> RequestParam] {
         return requests
     }
 }
@@ -49,15 +49,15 @@ public struct RequestChainBuilder {
 ///
 /// - Precondition: You must have **at least 2** `Request`s in your chain, or the compiler will have a fit.
 public struct RequestChain {
-    private let requests: [([Data?], [RequestError?]) -> RequestParam]
+    private let requests: [([Data?], [Error?]) -> RequestParam]
     
-    public init(@RequestChainBuilder requests: () -> [([Data?], [RequestError?]) -> RequestParam]) {
+    public init(@RequestChainBuilder requests: () -> [([Data?], [Error?]) -> RequestParam]) {
         self.requests = requests()
     }
     
     /// Perform the `Request`s in the chain, and optionally respond with the data from each one when complete.
-    public func call(_ callback: @escaping ([Data?], [RequestError?]) -> Void = { (_, _) in }) {
-        func _call(_ index: Int, data: [Data?], errors: [RequestError?], callback: @escaping ([Data?], [RequestError?]) -> Void) {
+    public func call(_ callback: @escaping ([Data?], [Error?]) -> Void = { (_, _) in }) {
+        func _call(_ index: Int, data: [Data?], errors: [Error?], callback: @escaping ([Data?], [Error?]) -> Void) {
             var params = self.requests[index](data, errors)
             if !(params is CombinedParams) {
                 params = CombinedParams(children: [params])
