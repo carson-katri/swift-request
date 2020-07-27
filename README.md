@@ -8,7 +8,7 @@
 [![Build Status](https://travis-ci.com/carson-katri/swift-request.svg?branch=master)](https://travis-ci.com/carson-katri/swift-request)
 [![codecov](https://codecov.io/gh/carson-katri/swift-request/branch/master/graph/badge.svg)](https://codecov.io/gh/carson-katri/swift-request)
 
-[Installation](#installation) - [Getting Started](#getting-started) - [Building a Request](#building-a-request) - [Codable](#codable) - [How it Works](#how-it-works) - [Request Groups](#request-groups) - [Request Chains](#request-chains) - [Json](#json) - [Contributing](#contributing) - [License](#license)
+[Installation](#installation) - [Getting Started](#getting-started) - [Building a Request](#building-a-request) - [Codable](#codable) - [Combine](#combine) - [How it Works](#how-it-works) - [Request Groups](#request-groups) - [Request Chains](#request-chains) - [Json](#json) - [Contributing](#contributing) - [License](#license)
 
 [Using with SwiftUI](Resources/swiftui.md)
 
@@ -65,10 +65,17 @@ Request {
 Once you've built your `Request`, you can specify the response handlers you want to use.
 `.onData`, `.onString`, `.onJson`, and `.onError` are available.
 You can chain them together to handle multiple response types, as they return a modified version of the `Request`.
-You can also use `.response`, which is an `ObservableObject` for use with `Combine` and/or `SwiftUI`.
 
 To perform the `Request`, just use `.call()`. This will run the `Request`, and give you the response when complete.
 
+`Request` also conforms to `Publisher`, so you can manipulate it like any other Combine publisher ([read more](#combine)):
+```swift
+let cancellable = Request {
+    Url("https://jsonplaceholder.typicode.com/todo")
+    Header.Accept(.json)
+}
+.sink(receiveCompletion: { ... }, receiveValue: { ... })
+```
 
 ## Building a Request
 There are many different tools available to build a `Request`:
@@ -151,6 +158,67 @@ In this case, `onObject` gives us `[Todo]?` in response. It's that easy to get d
 
 > If you use `onObject` on a standard `Request`, you will receive `Data` in response.
 
+## Combine
+`Request` and `RequestGroup` both conform to `Publisher`:
+```swift
+Request {
+    Url("https://jsonplaceholder.typicode.com/todos")
+}
+.sink(receiveCompletion: { ... }, receiveValue: { ... })
+
+RequestGroup {
+    Request {
+        Url("https://jsonplaceholder.typicode.com/todos")
+    }
+    Request {
+        Url("https://jsonplaceholder.typicode.com/posts")
+    }
+    Request {
+        Url("https://jsonplaceholder.typicode.com/todos/1")
+    }
+}
+.sink(receiveCompletion: { ... }, receiveValue: { ... })
+```
+`Request` publishes the result using `URLSession.DataTaskPublisher`. `RequestGroup` collects the result of each `Request` in its body, and publishes the array of results.
+
+You can use all of the Combine operators you'd expect on `Request`:
+```swift
+Request {
+    Url("https://jsonplaceholder.typicode.com/todos")
+}
+.map(\.data)
+.decode([Todo].self, decoder: JSONDecoder())
+.sink(receiveCompletion: { ... }, receiveValue: { ... })
+```
+However, `Request` also comes with several convenience `Publishers` to simplify the process of decoding:
+
+1. `objectPublisher` - Decodes the data of an `AnyRequest` using `JSONDecoder`
+2. `stringPublisher` - Decodes the data to a `String`
+3. `jsonPublisher` - Converts the result to a `Json` object
+
+Here's an example of using `objectPublisher`:
+```swift
+AnyRequest<[Todo]> {
+    Url("https://jsonplaceholder.typicode.com/todos")
+}
+.objectPublisher
+.sink(receiveCompletion: { ... }, receiveValue: { ... })
+```
+This removes the need to constantly use `.map.decode` to extract the desired `Codable` result.
+
+To handle errors, you can use the `receiveCompletion` handler in `sink`:
+```swift
+Request {
+    Url("https://jsonplaceholder.typicode.com/todos")
+}
+.sink(receiveCompletion: { res in
+    switch res {
+    case let .failure(err):
+        // Handle `err`
+    case .finished: break
+    }
+}, receiveValue: { ... })
+```
 
 ## How it Works
 The body of the `Request` is built using the `RequestBuilder` `@_functionBuilder`.
