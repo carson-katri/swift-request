@@ -413,44 +413,31 @@ final class RequestTests: XCTestCase {
         waitForExpectations(timeout: 10000)
     }
     
-    func testPublisherChain() {
+    func testPublisherGroup() {
         let expectation = self.expectation(description: #function)
         
-        let expectation = self.expectation(description: #function)
-        var success = false
-        RequestChain {
-            Request.chained { (data, err) in
+        let publisher = RequestGroup {
+            Request {
                 Url("https://jsonplaceholder.typicode.com/todos")
-                Method(.get)
             }
-            Request.chained { (data, err) in
-                let json = try? Json(data[0]!)
-                return Url("https://jsonplaceholder.typicode.com/todos/\(json?[0]["id"].int ?? 0)")
+            Request {
+                Url("https://jsonplaceholder.typicode.com/posts")
+            }
+            Request {
+                Url("https://jsonplaceholder.typicode.com/todos/1")
             }
         }
-        .call { (data, errors) in
-            if data.count > 1 {
-                success = true
-            }
-            expectation.fulfill()
-        }
-        waitForExpectations(timeout: 10000)
-        XCTAssert(success)
-        
-        let publisher = AnyRequest<[Todo]> {
-            Url("https://jsonplaceholder.typicode.com/todos")
-        }
-        .objectPublisher
         .sink(receiveCompletion: { res in
             switch res {
-            case let .failure(err):
-                XCTFail(err.localizedDescription)
             case .finished:
                 expectation.fulfill()
+            case .failure(let err):
+                XCTFail(err.localizedDescription)
             }
-        }, receiveValue: { todos in
-            XCTAssertGreaterThan(todos.count, 1)
+        }, receiveValue: { vals in
+            XCTAssertEqual(vals.count, 3)
         })
+        
         XCTAssertNotNil(publisher)
         
         waitForExpectations(timeout: 10000)
@@ -473,6 +460,7 @@ final class RequestTests: XCTestCase {
         ("testUpdate", testUpdate),
         
         ("testPublisher", testPublisher),
-        ("testPublisherDecode", testPublisherDecode)
+        ("testPublisherDecode", testPublisherDecode),
+        ("testPublisherGroup", testPublisherGroup)
     ]
 }
