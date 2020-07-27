@@ -40,7 +40,7 @@ public typealias Request = AnyRequest<Data>
 ///     .onObject { myCodableStructs in
 ///         ...
 ///     }
-public struct AnyRequest<ResponseType>: Publisher where ResponseType: Decodable {
+public struct AnyRequest<ResponseType> where ResponseType: Decodable {
     public let combineIdentifier = CombineIdentifier()
 
     private var params: CombinedParams
@@ -51,9 +51,6 @@ public struct AnyRequest<ResponseType>: Publisher where ResponseType: Decodable 
     internal var onObject: ((ResponseType) -> Void)?
     internal var onError: ((Error) -> Void)?
     internal var updatePublisher: AnyPublisher<Void,Never>?
-
-    public typealias Output = URLSession.DataTaskPublisher.Output
-    public typealias Failure = Error
     
     public init(@RequestBuilder builder: () -> RequestParam) {
         let params = builder()

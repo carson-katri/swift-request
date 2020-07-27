@@ -9,7 +9,10 @@ import Foundation
 import Combine
 import Json
 
-extension AnyRequest {
+extension AnyRequest: Publisher {
+    public typealias Output = URLSession.DataTaskPublisher.Output
+    public typealias Failure = Error
+    
     public func receive<S>(subscriber: S) where S : Subscriber, S.Failure == Failure, S.Input == Self.Output {
         buildSession()
             .subscribe(subscriber)

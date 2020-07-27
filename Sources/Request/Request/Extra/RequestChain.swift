@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 public extension Request {
     /// Creates a `Request` to be used in a `RequestChain`
@@ -49,7 +50,7 @@ public struct RequestChainBuilder {
 ///
 /// - Precondition: You must have **at least 2** `Request`s in your chain, or the compiler will have a fit.
 public struct RequestChain {
-    private let requests: [([Data?], [Error?]) -> RequestParam]
+    internal let requests: [([Data?], [Error?]) -> RequestParam]
     
     public init(@RequestChainBuilder requests: () -> [([Data?], [Error?]) -> RequestParam]) {
         self.requests = requests()
