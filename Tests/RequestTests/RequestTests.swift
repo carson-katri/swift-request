@@ -397,8 +397,7 @@ final class RequestTests: XCTestCase {
         let publisher = AnyRequest<[Todo]> {
             Url("https://jsonplaceholder.typicode.com/todos")
         }
-        .map(\.data)
-        .decode(type: [Todo].self, decoder: JSONDecoder())
+        .objectPublisher
         .sink(receiveCompletion: { res in
             switch res {
             case let .failure(err):
