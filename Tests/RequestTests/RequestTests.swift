@@ -43,17 +43,25 @@ final class RequestTests: XCTestCase {
     }
 
     func testPost() {
-        // Workaround for 'ambiguous reference' error.
-        let method = Method(.post)
+        struct Todo: Codable {
+            let title: String
+            let completed: Bool
+            let userId: Int
+        }
         performRequest(Request {
             Url("https://jsonplaceholder.typicode.com/todos")
-            method
+            Method(.post)
             Body([
                 "title": "My Post",
                 "completed": true,
                 "userId": 3,
             ])
             Body("{\"userId\" : 3,\"title\" : \"My Post\",\"completed\" : true}")
+            RequestBody(Todo(
+                title: "My Post",
+                completed: true,
+                userId: 3
+            ))
         })
     }
     
