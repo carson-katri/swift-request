@@ -24,6 +24,14 @@ import Foundation
 ///         Url("api.example.com/save")
 ///         Body("myData")
 ///     }
+///
+/// Or as an `Encodable` type:
+///
+///     Request {
+///         Url("api.example.com/save")
+///         Body(codableTodo)
+///     }
+///
 public struct Body: RequestParam {
     public var type: RequestParamType = .body
     public var value: Any?
@@ -33,8 +41,17 @@ public struct Body: RequestParam {
         self.value = try? JSONSerialization.data(withJSONObject: dict, options: .prettyPrinted)
     }
     
+    /// Creates the `Body` from an `Encodable` type using `JSONEncoder`
+    public init<T: Encodable>(_ value: T) {
+        self.value = try? JSONEncoder().encode(value)
+    }
+    
     /// Creates the `Body` from a `String`
     public init(_ string: String) {
         self.value = string.data(using: .utf8)
     }
 }
+
+#if canImport(SwiftUI)
+public typealias RequestBody = Body
+#endif
