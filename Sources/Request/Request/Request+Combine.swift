@@ -15,21 +15,21 @@ extension AnyRequest {
             .subscribe(subscriber)
     }
     
-    typealias DataMapPublisher = Publishers.MapKeyPath<AnyRequest<ResponseType>, JSONDecoder.Input>
-    typealias ObjectPublisher = Publishers.Decode<DataMapPublisher, ResponseType, JSONDecoder>
+    public typealias DataMapPublisher = Publishers.MapKeyPath<AnyRequest<ResponseType>, JSONDecoder.Input>
+    public typealias ObjectPublisher = Publishers.Decode<DataMapPublisher, ResponseType, JSONDecoder>
     public var objectPublisher: ObjectPublisher {
         map(\.data)
             .decode(type: ResponseType.self, decoder: JSONDecoder())
     }
     
-    typealias StringPublisher = Publishers.CompactMap<AnyRequest<ResponseType>, String>
+    public typealias StringPublisher = Publishers.CompactMap<AnyRequest<ResponseType>, String>
     public var stringPublisher: StringPublisher {
         compactMap {
             String(data: $0.data, encoding: .utf8)
         }
     }
     
-    typealias JsonPublisher = Publishers.TryMap<StringPublisher, Json>
+    public typealias JsonPublisher = Publishers.TryMap<StringPublisher, Json>
     public var jsonPublisher: JsonPublisher {
         stringPublisher
             .tryMap {
