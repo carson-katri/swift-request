@@ -14,6 +14,8 @@ extension AnyRequest: Publisher {
     public typealias Failure = Error
     
     public func receive<S>(subscriber: S) where S : Subscriber, S.Failure == Failure, S.Input == Output {
+        updatePublisher?
+            .receive(subscriber: UpdateSubscriber(request: self))
         buildSession()
             .subscribe(subscriber)
     }
@@ -38,6 +40,21 @@ extension AnyRequest: Publisher {
             .tryMap {
                 try Json($0)
             }
+    }
+    
+    public typealias UpdatePublisher<Downstream, Upstream> = Publishers.FlatMap<Downstream, Upstream>
+    where Downstream: Publisher, Upstream: Publisher, Downstream.Failure == Error, Upstream.Failure == Error
+    
+    func updatePublisher<T: Publisher>(publisher: T) -> UpdatePublisher<Self, T> {
+        publisher.flatMap { _ in self }
+    }
+    
+    public typealias UpdateTimerPublisher = UpdatePublisher<Self, Publishers.MapError<Publishers.Autoconnect<Timer.TimerPublisher>, Error>>
+    
+    func updatePublisher(every seconds: TimeInterval) -> UpdateTimerPublisher {
+        updatePublisher(publisher: Timer.publish(every: seconds, on: .main, in: .common)
+                            .autoconnect()
+                            .mapError { _ in RequestError(statusCode: -1, error: nil) })
     }
 }
 

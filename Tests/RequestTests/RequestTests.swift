@@ -442,6 +442,31 @@ final class RequestTests: XCTestCase {
         
         waitForExpectations(timeout: 10000)
     }
+    
+    func testPublisherUpdate() {
+        let expectation = self.expectation(description: #function)
+        var numResponses = 0
+        let publisher = Request {
+                Url("https://jsonplaceholder.typicode.com/todos")
+            }
+            .updatePublisher(every: 1)
+            .sink(receiveCompletion: { res in
+                switch res {
+                case let .failure(err):
+                    XCTFail(err.localizedDescription)
+                case .finished:
+                    expectation.fulfill()
+                }
+            }, receiveValue: { _ in
+                numResponses += 1
+                if numResponses >= 3 {
+                    expectation.fulfill()
+                }
+            })
+        XCTAssertNotNil(publisher)
+        
+        waitForExpectations(timeout: 10000)
+    }
 
     static var allTests = [
         ("simpleRequest", testSimpleRequest),

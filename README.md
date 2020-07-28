@@ -283,6 +283,17 @@ Request {
 .call()
 ```
 
+If you want to use `Request` as a `Publisher`, use `updatePublisher`:
+```swift
+Request {
+    Url("https://jsonplaceholder.typicode.com/todo")
+}
+.updatePublisher(every: 10)
+.updatePublisher(publisher: ...)
+.sink(receiveCompletion: { ... }, receiveValue: { ... })
+```
+Unlike `update`, `updatePublisher` does not send a value immediately, but will wait for the first value from the `Publisher`.
+
 ## Json
 `swift-request` includes support for `Json`.
 `Json` is used as the response type in the `onJson` callback on a `Request` object.
