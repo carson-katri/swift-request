@@ -13,7 +13,7 @@ extension AnyRequest: Publisher {
     public typealias Output = URLSession.DataTaskPublisher.Output
     public typealias Failure = Error
     
-    public func receive<S>(subscriber: S) where S : Subscriber, S.Failure == Failure, S.Input == Self.Output {
+    public func receive<S>(subscriber: S) where S : Subscriber, S.Failure == Failure, S.Input == Output {
         buildSession()
             .subscribe(subscriber)
     }
