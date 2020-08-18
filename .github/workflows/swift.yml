@@ -1,10 +1,6 @@
 name: Build
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+on: [push, pull_request]
 
 jobs:
   build:
@@ -13,7 +9,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Build
-      run: swift build -v
-    - name: Run tests
-      run: swift test -v
+    - name: Generate xcodeproj
+      run: swift package generate-xcodeproj
+    - name: Test
+      run: xcodebuild clean test -project Request.xcodeproj -scheme "Request-Package" -destination "OS=13.0,name=iPhone 11" CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO ONLY_ACTIVE_ARCH=NO -quiet -enableCodeCoverage YES -derivedDataPath .build/derivedData
+    - name: Upload Codecov report
+      run: bash <(curl -s https://codecov.io/bash) -D .build/derivedData
