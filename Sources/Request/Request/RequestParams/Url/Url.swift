@@ -23,3 +23,7 @@ public struct Url: RequestParam {
         self.value = "\(type.rawValue)://\(url)"
     }
 }
+
+public func + (_ url: Url, _ complementary: String) -> Url {
+    Url("\(url.value ?? "")\(complementary)")
+}

@@ -33,4 +33,12 @@ public struct RequestBuilder {
         }
         return CombinedParams(children: [])
     }
+
+    static public func buildEither(first: RequestParam) -> RequestParam {
+        return first
+    }
+
+    static public func buildEither(second: RequestParam) -> RequestParam {
+        return second
+    }
 }
