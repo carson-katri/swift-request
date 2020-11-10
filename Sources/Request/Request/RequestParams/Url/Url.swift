@@ -27,3 +27,7 @@ public struct Url: RequestParam {
 public func + (_ url: Url, _ complementary: String) -> Url {
     Url("\(url.value ?? "")\(complementary)")
 }
+
+public func + (_ lhs: Url, _ rhs: Url) -> Url {
+    Url("\(lhs.value ?? "")\(rhs.value ?? "")")
+}
