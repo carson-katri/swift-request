@@ -64,12 +64,59 @@ final class RequestTests: XCTestCase {
             ))
         })
     }
-    
+
     func testQuery() {
         performRequest(Request {
             Url("https://jsonplaceholder.typicode.com/todos")
             Method(.get)
             Query(["userId":"1", "password": "2"])
+            Query([QueryParam("key", value: "value"), QueryParam("key2", value: "value2")])
+        })
+    }
+
+    func testURLConcatenatedStringQuery() {
+        let baseUrl = Url("https://jsonplaceholder.typicode.com")
+        let todosEndpoint = "/todos"
+
+        performRequest(Request {
+            baseUrl + todosEndpoint
+            Method(.get)
+            Query(["userId":"1", "password": "2"])
+            Query([QueryParam("key", value: "value"), QueryParam("key2", value: "value2")])
+        })
+    }
+
+    func testURLConcatenatedURLQuery() {
+        let baseUrl = Url("https://jsonplaceholder.typicode.com")
+        let todosEndpoint = Url("/todos")
+
+        performRequest(Request {
+            baseUrl + todosEndpoint
+            Method(.get)
+            Query(["userId":"1", "password": "2"])
+            Query([QueryParam("key", value: "value"), QueryParam("key2", value: "value2")])
+        })
+    }
+
+    func testBuildEitherQuery() {
+        enum AuthProvider {
+            case explicity(userId: String, password: String)
+            case barrer(String)
+        }
+
+        let provider = AuthProvider.explicity(userId: "1", password: "2")
+
+        performRequest(Request {
+            Url("https://jsonplaceholder.typicode.com/todos")
+            Method(.get)
+
+            switch provider {
+            case .explicity(let userId, let password):
+                Query(["userId":userId, "password": password])
+            case .barrer(let token):
+                Header.Authorization(.bearer(token))
+            }
+
             Query([QueryParam("key", value: "value"), QueryParam("key2", value: "value2")])
         })
     }
