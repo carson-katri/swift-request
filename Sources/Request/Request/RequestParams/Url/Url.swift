@@ -24,6 +24,12 @@ public struct Url: RequestParam {
     }
 }
 
+extension Url: Equatable {
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.value as! String == rhs.value as! String
+    }
+}
+
 public func + (_ url: Url, _ complementary: String) -> Url {
     Url("\(url.value ?? "")\(complementary)")
 }

@@ -78,25 +78,15 @@ final class RequestTests: XCTestCase {
     func testURLConcatenatedStringQuery() {
         let baseUrl = Url("https://jsonplaceholder.typicode.com")
         let todosEndpoint = "/todos"
-
-        performRequest(Request {
-            baseUrl + todosEndpoint
-            Method(.get)
-            Query(["userId":"1", "password": "2"])
-            Query([QueryParam("key", value: "value"), QueryParam("key2", value: "value2")])
-        })
+        
+        XCTAssertEqual(baseUrl + todosEndpoint, Url("https://jsonplaceholder.typicode.com/todos"))
     }
 
     func testURLConcatenatedURLQuery() {
         let baseUrl = Url("https://jsonplaceholder.typicode.com")
         let todosEndpoint = Url("/todos")
 
-        performRequest(Request {
-            baseUrl + todosEndpoint
-            Method(.get)
-            Query(["userId":"1", "password": "2"])
-            Query([QueryParam("key", value: "value"), QueryParam("key2", value: "value2")])
-        })
+        XCTAssertEqual(baseUrl + todosEndpoint, Url("https://jsonplaceholder.typicode.com/todos"))
     }
 
     func testBuildEitherQuery() {
@@ -387,17 +377,15 @@ final class RequestTests: XCTestCase {
 
     func testUpdate() {
         let expectation = self.expectation(description: #function)
-        var numResponses = 0
-
+        expectation.expectedFulfillmentCount = 3
+        expectation.assertForOverFulfill = false
+        
         Request {
             Url("https://jsonplaceholder.typicode.com/todos")
         }
         .update(every: 1)
         .onData { data in
-                numResponses += 1
-                if numResponses >= 3 {
-                    expectation.fulfill()
-                }
+            expectation.fulfill()
         }
         .call()
         waitForExpectations(timeout: 10000)
