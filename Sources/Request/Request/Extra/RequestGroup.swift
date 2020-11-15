@@ -35,36 +35,48 @@ public struct RequestGroupBuilder {
 ///
 /// You can use `onData`, `onString`, `onJson`, and `onError` like you would with a normal `Request`.
 /// However, it will also return the index of the `Request`, along with the data.
-public class RequestGroup {
-    private let requests: [Request]
+public struct RequestGroup {
+    internal let requests: [Request]
     
-    private var onData: ((Int, Data?) -> Void)?
-    private var onString: ((Int, String?) -> Void)?
-    private var onJson: ((Int, Json?) -> Void)?
-    private var onError: ((Int, Error) -> Void)?
+    private let onData: ((Int, Data?) -> Void)?
+    private let onString: ((Int, String?) -> Void)?
+    private let onJson: ((Int, Json?) -> Void)?
+    private let onError: ((Int, Error) -> Void)?
     
     public init(@RequestGroupBuilder requests: () -> [Request]) {
         self.requests = requests()
+        self.onData = nil
+        self.onString = nil
+        self.onJson = nil
+        self.onError = nil
+    }
+    
+    internal init(requests: [Request],
+                  onData: ((Int, Data?) -> Void)?,
+                  onString: ((Int, String?) -> Void)?,
+                  onJson: ((Int, Json?) -> Void)?,
+                  onError: ((Int, Error) -> Void)?) {
+        self.requests = requests
+        self.onData = onData
+        self.onString = onString
+        self.onJson = onJson
+        self.onError = onError
     }
     
     public func onData(_ callback: @escaping ((Int, Data?) -> Void)) -> RequestGroup {
-        self.onData = callback
-        return self
+        Self.init(requests: requests, onData: callback, onString: onString, onJson: onJson, onError: onError)
     }
     
     public func onString(_ callback: @escaping ((Int, String?) -> Void)) -> RequestGroup {
-        self.onString = callback
-        return self
+        Self.init(requests: requests, onData: onData, onString: callback, onJson: onJson, onError: onError)
     }
     
     public func onJson(_ callback: @escaping ((Int, Json?) -> Void)) -> RequestGroup {
-        self.onJson = callback
-        return self
+        Self.init(requests: requests, onData: onData, onString: onString, onJson: callback, onError: onError)
     }
     
     public func onError(_ callback: @escaping ((Int, Error) -> Void)) -> RequestGroup {
-        self.onError = callback
-        return self
+        Self.init(requests: requests, onData: onData, onString: onString, onJson: onJson, onError: callback)
     }
     
     /// Perform the `Request`s in the group.

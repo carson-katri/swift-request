@@ -1,5 +1,6 @@
 import XCTest
 import Json
+import Combine
 @testable import Request
 
 final class RequestTests: XCTestCase {
@@ -418,6 +419,109 @@ final class RequestTests: XCTestCase {
         
         waitForExpectations(timeout: 2000)
     }
+    
+    func testPublisher() {
+        let expectation = self.expectation(description: #function)
+        
+        let publisher = Request {
+            Url("https://jsonplaceholder.typicode.com/todos")
+        }
+        .sink(receiveCompletion: { res in
+            switch res {
+            case let .failure(err):
+                XCTFail(err.localizedDescription)
+            case .finished:
+                expectation.fulfill()
+            }
+        }, receiveValue: { _ in })
+        XCTAssertNotNil(publisher)
+        
+        waitForExpectations(timeout: 10000)
+    }
+    
+    func testPublisherDecode() {
+        struct Todo: Decodable {
+            let id: Int
+            let userId: Int
+            let title: String
+            let completed: Bool
+        }
+        
+        let expectation = self.expectation(description: #function)
+        
+        let publisher = AnyRequest<[Todo]> {
+            Url("https://jsonplaceholder.typicode.com/todos")
+        }
+        .objectPublisher
+        .sink(receiveCompletion: { res in
+            switch res {
+            case let .failure(err):
+                XCTFail(err.localizedDescription)
+            case .finished:
+                expectation.fulfill()
+            }
+        }, receiveValue: { todos in
+            XCTAssertGreaterThan(todos.count, 1)
+        })
+        XCTAssertNotNil(publisher)
+        
+        waitForExpectations(timeout: 10000)
+    }
+    
+    func testPublisherGroup() {
+        let expectation = self.expectation(description: #function)
+        
+        let publisher = RequestGroup {
+            Request {
+                Url("https://jsonplaceholder.typicode.com/todos")
+            }
+            Request {
+                Url("https://jsonplaceholder.typicode.com/posts")
+            }
+            Request {
+                Url("https://jsonplaceholder.typicode.com/todos/1")
+            }
+        }
+        .sink(receiveCompletion: { res in
+            switch res {
+            case .finished:
+                expectation.fulfill()
+            case .failure(let err):
+                XCTFail(err.localizedDescription)
+            }
+        }, receiveValue: { vals in
+            XCTAssertEqual(vals.count, 3)
+        })
+        
+        XCTAssertNotNil(publisher)
+        
+        waitForExpectations(timeout: 10000)
+    }
+    
+    func testPublisherUpdate() {
+        let expectation = self.expectation(description: #function)
+        var numResponses = 0
+        let publisher = Request {
+                Url("https://jsonplaceholder.typicode.com/todos")
+            }
+            .updatePublisher(every: 1)
+            .sink(receiveCompletion: { res in
+                switch res {
+                case let .failure(err):
+                    XCTFail(err.localizedDescription)
+                case .finished:
+                    expectation.fulfill()
+                }
+            }, receiveValue: { _ in
+                numResponses += 1
+                if numResponses >= 3 {
+                    expectation.fulfill()
+                }
+            })
+        XCTAssertNotNil(publisher)
+        
+        waitForExpectations(timeout: 10000)
+    }
 
     static var allTests = [
         ("simpleRequest", testSimpleRequest),
@@ -434,5 +538,9 @@ final class RequestTests: XCTestCase {
         ("anyRequest", testAnyRequest),
         ("testError", testError),
         ("testUpdate", testUpdate),
+        
+        ("testPublisher", testPublisher),
+        ("testPublisherDecode", testPublisherDecode),
+        ("testPublisherGroup", testPublisherGroup)
     ]
 }
