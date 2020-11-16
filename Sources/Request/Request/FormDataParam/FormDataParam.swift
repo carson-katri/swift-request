@@ -20,6 +20,7 @@ extension FormDataParam {
         data.append(footer)
 
         request.setValue("\(data.count)", forHTTPHeaderField: "Content-Length")
+        request.httpBody = data
     }
 }
 
