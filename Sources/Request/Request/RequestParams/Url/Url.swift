@@ -18,21 +18,13 @@ public struct Url: RequestParam {
         self.path = path
     }
     
-    public init(_ type: ProtocolType, url: String) {
+    public init(`protocol` type: ProtocolType, url: String) {
         self.type = type
         self.path = url
     }
 
     public func buildParam(_ request: inout URLRequest) {
         request.url = URL(string: absoluteString)
-    }
-
-    fileprivate func append(_ string: String) -> Url {
-        if let type = type {
-            return .init(type, url: "\(path)\(string)")
-        }
-
-        return .init("\(path)\(string)")
     }
 
     fileprivate var absoluteString: String {
@@ -47,6 +39,16 @@ public struct Url: RequestParam {
 extension Url: Equatable {
     public static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.absoluteString == rhs.absoluteString
+    }
+}
+
+public extension Url {
+    func append(_ string: String) -> Url {
+        if let type = type {
+            return .init(protocol: type, url: "\(path)\(string)")
+        }
+
+        return .init("\(path)\(string)")
     }
 }
 

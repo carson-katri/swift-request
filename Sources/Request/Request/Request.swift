@@ -102,21 +102,21 @@ public struct AnyRequest<ResponseType> where ResponseType: Decodable {
     }
 
     internal func buildSession() -> AnyPublisher<(data: Data, response: URLResponse), Error> {
-        let params = self.params.sorted(by: { $0 is Url || ($1 is SessionConfiguration) })
+        let params = self.params.sorted(by: { $0 is Url || ($1 is SessionParam) })
 
         guard params.first is Url else {
             fatalError("Request should contain at least one Url")
         }
 
         var request = URLRequest(url: URL(string: "https://")!)
-        for param in params where !(param is SessionConfiguration) {
+        for param in params where !(param is SessionParam) {
             param.buildParam(&request)
         }
         
         // Configuration
         let configuration = URLSessionConfiguration.default
-        for config in params where config is SessionConfiguration {
-            (config as? SessionConfiguration)?.buildConfiguration(configuration)
+        for config in params where config is SessionParam {
+            (config as? SessionParam)?.buildConfiguration(configuration)
         }
 
         // PERFORM REQUEST

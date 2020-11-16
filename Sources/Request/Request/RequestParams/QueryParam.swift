@@ -10,9 +10,9 @@ import Foundation
 /// A key-value pair for a part of the query string
 public struct QueryParam: RequestParam {
     private var key: String
-    private var value: Any?
+    private var value: String
     
-    public init(_ key: String, value: Any?) {
+    public init(_ key: String, value: String) {
         self.key = key
         self.value = value
     }
@@ -32,6 +32,6 @@ public struct QueryParam: RequestParam {
 
 extension QueryParam {
     var urlQueryItem: URLQueryItem {
-        URLQueryItem(name: key, value: value.map { "\($0)" } ?? "")
+        URLQueryItem(name: key, value: value)
     }
 }

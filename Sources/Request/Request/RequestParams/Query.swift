@@ -15,21 +15,15 @@ public struct Query: RequestParam {
 
     /// Creates the `Query` from `[key:value]` pairs
     /// - Parameter params: Key-value pairs describing the `Query`
-    public init(_ params: [String: Any?]) {
+    public init(_ params: [String:String]) {
         children = params.map {
             QueryParam($0.key, value: $0.value)
         }
     }
 
     /// Creates the `Query` directly from an array of `QueryParam`s
-    public init(@RequestBuilder _ params: () -> RequestParam) {
-        self.children = params().unzip.compactMap {
-            guard let queryParam = $0 as? QueryParam else {
-                fatalError("Query should only contains QueryParam")
-            }
-
-            return queryParam
-        }
+    public init(_ params: [QueryParam]) {
+        self.children = params
     }
 
     public func buildParam(_ request: inout URLRequest) {

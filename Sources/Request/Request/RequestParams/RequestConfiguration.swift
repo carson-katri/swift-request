@@ -7,11 +7,11 @@
 
 import Foundation
 
-protocol SessionConfiguration: RequestParam {
+public protocol SessionParam: RequestParam {
     func buildConfiguration(_ sessionConfiguration: URLSessionConfiguration)
 }
 
-extension SessionConfiguration {
+extension SessionParam {
     public func buildParam(_ request: inout URLRequest) {
         fatalError("SessionConfiguration shouldn't build URLRequest")
     }
