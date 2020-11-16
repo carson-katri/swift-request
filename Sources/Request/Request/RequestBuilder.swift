@@ -18,11 +18,7 @@ public struct RequestBuilder {
     }
 
     public static func buildIf(_ param: RequestParam?) -> RequestParam {
-        if let param = param {
-            return param
-        }
-
-        return CombinedParams(children: [])
+        param ?? EmptyParam()
     }
 
     public static func buildEither(first: RequestParam) -> RequestParam {
