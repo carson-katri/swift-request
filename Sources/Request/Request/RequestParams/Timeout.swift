@@ -8,24 +8,22 @@
 import Foundation
 
 /// Sets the `timeoutIntervalForRequest` and/or `timeoutIntervalForResource` of the `Request`
-public struct Timeout: RequestParam {
-    public var type: RequestParamType = .timeout
-    public var value: Any? = nil
+public struct Timeout: RequestParam, SessionConfiguration {
+    private let timeout: TimeInterval
+    private let source: Source
     
     public init(_ timeout: TimeInterval, for source: Source = .all) {
-        self.value = (source, timeout)
+        self.timeout = timeout
+        self.source = source
     }
-    
-    public struct Source: OptionSet {
-        public let rawValue: Int
-        
-        public init(rawValue: Int) {
-            self.rawValue = rawValue
-        }
-        
-        public static let request  = Self(rawValue: 1 << 0)
-        public static let resource = Self(rawValue: 1 << 1)
 
-        public static let all: Self = [.request, .resource]
+    func buildConfiguration(_ sessionConfiguration: URLSessionConfiguration) {
+        if source.contains(.request) {
+            sessionConfiguration.timeoutIntervalForRequest = timeout
+        }
+
+        if source.contains(.resource) {
+            sessionConfiguration.timeoutIntervalForResource = timeout
+        }
     }
 }

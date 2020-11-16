@@ -10,30 +10,50 @@ import Foundation
 /// Sets the URL of the `Request`.
 /// - Precondition: Only use one URL in your `Request`. To group or chain requests, use a `RequestGroup` or `RequestChain`.
 public struct Url: RequestParam {
-    public var type: RequestParamType = .url
-    public var key: String? = nil
-    public var value: Any?
-    public var children: [RequestParam]? = nil
+    private let type: ProtocolType?
+    fileprivate let path: String
     
-    public init(_ value: String) {
-        self.value = value
+    public init(_ path: String) {
+        self.type = nil
+        self.path = path
     }
     
-    public init(`protocol` type: ProtocolType, url: String) {
-        self.value = "\(type.rawValue)://\(url)"
+    public init(_ type: ProtocolType, url: String) {
+        self.type = type
+        self.path = url
+    }
+
+    public func buildParam(_ request: inout URLRequest) {
+        request.url = URL(string: absoluteString)
+    }
+
+    fileprivate func append(_ string: String) -> Url {
+        if let type = type {
+            return .init(type, url: "\(path)\(string)")
+        }
+
+        return .init("\(path)\(string)")
+    }
+
+    fileprivate var absoluteString: String {
+        if let type = type {
+            return "\(type.rawValue)://\(path)"
+        }
+
+        return path
     }
 }
 
 extension Url: Equatable {
     public static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.value as! String == rhs.value as! String
+        lhs.absoluteString == rhs.absoluteString
     }
 }
 
 public func + (_ url: Url, _ complementary: String) -> Url {
-    Url("\(url.value ?? "")\(complementary)")
+    url.append(complementary)
 }
 
 public func + (_ lhs: Url, _ rhs: Url) -> Url {
-    Url("\(lhs.value ?? "")\(rhs.value ?? "")")
+    lhs.append(rhs.path)
 }

@@ -1,28 +1,27 @@
 //
 //  File.swift
-//  
 //
-//  Created by Carson Katri on 6/30/19.
+//
+//  Created by brennobemoura on 15/11/20.
 //
 
 import Foundation
 
-public struct HeaderParam: RequestParam {
-    public var type: RequestParamType = .header
-    public var key: String?
-    public var value: Any?
-    
-    public init(key: String, value: String) {
-        self.key = key
-        self.value = value
-    }
-}
-
 /// Creates a `HeaderParam` for any number of different headers
 public struct Header {
     /// Sets the value for any header
-    public static func `Any`(key: String, value: String) -> HeaderParam {
-        HeaderParam(key: key, value: value)
+    public struct `Any`: RequestParam {
+        private let key: String
+        private let value: String?
+
+        public init(key: String, value: String) {
+            self.key = key
+            self.value = value
+        }
+
+        public func buildParam(_ request: inout URLRequest) {
+            request.setValue(value, forHTTPHeaderField: key)
+        }
     }
 }
 

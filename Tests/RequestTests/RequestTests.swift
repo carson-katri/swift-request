@@ -35,7 +35,7 @@ final class RequestTests: XCTestCase {
         let condition = true
         performRequest(Request {
             if condition {
-                Url(protocol: .https, url: "jsonplaceholder.typicode.com/todos")
+                Url(.https, url: "jsonplaceholder.typicode.com/todos")
             }
             if !condition {
                 Url("invalidurl")
@@ -71,14 +71,17 @@ final class RequestTests: XCTestCase {
             Url("https://jsonplaceholder.typicode.com/todos")
             Method(.get)
             Query(["userId":"1", "password": "2"])
-            Query([QueryParam("key", value: "value"), QueryParam("key2", value: "value2")])
+            Query {
+                QueryParam("key", value: "value")
+                QueryParam("key2", value: "value2")
+            }
         })
     }
 
     func testURLConcatenatedStringQuery() {
         let baseUrl = Url("https://jsonplaceholder.typicode.com")
         let todosEndpoint = "/todos"
-        
+
         XCTAssertEqual(baseUrl + todosEndpoint, Url("https://jsonplaceholder.typicode.com/todos"))
     }
 
@@ -108,7 +111,10 @@ final class RequestTests: XCTestCase {
                 Header.Authorization(.bearer(token))
             }
 
-            Query([QueryParam("key", value: "value"), QueryParam("key2", value: "value2")])
+            Query {
+                QueryParam("key", value: "value")
+                QueryParam("key2", value: "value2")
+            }
         })
     }
 

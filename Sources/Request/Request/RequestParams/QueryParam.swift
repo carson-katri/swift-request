@@ -9,34 +9,29 @@ import Foundation
 
 /// A key-value pair for a part of the query string
 public struct QueryParam: RequestParam {
-    public var type: RequestParamType = .query
-    public var key: String?
-    public var value: Any?
+    private var key: String
+    private var value: Any?
     
-    public init(_ key: String, value: String) {
+    public init(_ key: String, value: Any?) {
         self.key = key
         self.value = value
     }
+
+    public func buildParam(_ request: inout URLRequest) {
+        guard
+            let url = request.url,
+            var components = URLComponents(string: url.absoluteString)
+        else {
+            fatalError("Couldn't create URLComponents, check if parameters are valid")
+        }
+
+        components.queryItems = [urlQueryItem]
+        request.url = components.url
+    }
 }
 
-/// Sets the query string of the `Request`
-///
-/// `[key:value, key2:value2]` becomes `?key=value&key2=value2`
-public struct Query: RequestParam {
-    public var type: RequestParamType = .query
-    public var value: Any?
-    public var children: [RequestParam]? = []
-    
-    /// Creates the `Query` from `[key:value]` pairs
-    /// - Parameter params: Key-value pairs describing the `Query`
-    public init(_ params: [String:String]) {
-        Array(params.keys).forEach { key in
-            self.children?.append(QueryParam(key, value: params[key]!))
-        }
-    }
-    
-    /// Creates the `Query` directly from an array of `QueryParam`s
-    public init(_ params: [QueryParam]) {
-        self.children = params
+extension QueryParam {
+    var urlQueryItem: URLQueryItem {
+        URLQueryItem(name: key, value: value.map { "\($0)" } ?? "")
     }
 }
