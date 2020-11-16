@@ -8,7 +8,7 @@
 import Foundation
 
 public extension Form {
-    struct Data: RequestParam, FormDataParam {
+    struct Data: FormParam {
         private let data: Foundation.Data
         private let fileName: String
         private let mime: String
@@ -26,7 +26,7 @@ public extension Form {
             self.mime = mime
         }
 
-        func buildData(_ data: inout Foundation.Data, with boundary: String) {
+        public func buildData(_ data: inout Foundation.Data, with boundary: String) {
             data.append(header)
             data.append(disposition(fileName, mime: mime))
             data.append(Foundation.Data("\(breakLine)".utf8))

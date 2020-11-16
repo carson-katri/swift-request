@@ -8,7 +8,7 @@
 import Foundation
 
 public extension Form {
-    struct File: RequestParam, FormDataParam {
+    struct File: FormParam {
         private let path: Url
         private let fileManager: FileManager
         private let mime: String
@@ -25,7 +25,7 @@ public extension Form {
             self.mime = mime
         }
 
-        func buildData(_ data: inout Foundation.Data, with boundary: String) {
+        public func buildData(_ data: inout Foundation.Data, with boundary: String) {
             guard
                 let fileData = fileManager.contents(atPath: path.absoluteString),
                 let fileName = path.absoluteString.split(separator: "/").last

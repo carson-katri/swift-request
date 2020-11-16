@@ -7,12 +7,12 @@
 
 import Foundation
 
-protocol FormDataParam: RequestParam {
+public protocol FormParam: RequestParam {
     func buildData(_ data: inout Data, with boundary: String)
 }
 
-extension FormDataParam {
-    public func buildParam(_ request: inout URLRequest) {
+public extension FormParam {
+    func buildParam(_ request: inout URLRequest) {
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
 
         var data = Data()
@@ -24,7 +24,7 @@ extension FormDataParam {
     }
 }
 
-internal extension FormDataParam {
+internal extension FormParam {
     private var boundary: String {
         "Boundary-\(NSUUID().uuidString)"
     }
