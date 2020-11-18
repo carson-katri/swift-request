@@ -23,10 +23,9 @@ internal struct CombinedParams: RequestParam {
 
 extension RequestParam {
     var unzip: [RequestParam] {
-        if let combined = self as? CombinedParams {
-            return combined.children
-        }
-
-        return [self]
+        (self as? CombinedParams).map {
+            $0.children
+                .reduce([]) { $0 + $1.unzip }
+        } ?? [self]
     }
 }
