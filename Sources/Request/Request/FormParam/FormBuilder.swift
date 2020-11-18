@@ -17,8 +17,12 @@ public struct FormBuilder {
         param
     }
 
+    public static func buildBlock() -> EmptyParam {
+        EmptyParam()
+    }
+
     public static func buildIf(_ param: FormParam?) -> FormParam {
-        param ?? Empty()
+        EmptyParam()
     }
 
     public static func buildEither(first: FormParam) -> FormParam {
@@ -52,10 +56,9 @@ private extension FormBuilder {
 
 extension FormParam {
     var unzip: [FormParam] {
-        if let combined = self as? FormBuilder.Combined {
-            return combined.children
-        }
-
-        return [self]
+        (self as? FormBuilder.Combined).map {
+            $0.children
+                .reduce([]) { $0 + $1.unzip }
+        } ?? [self]
     }
 }

@@ -13,11 +13,12 @@ public protocol FormParam: RequestParam {
 
 public extension FormParam {
     func buildParam(_ request: inout URLRequest) {
+        let boundary = self.boundary
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
 
         var data = Data()
         buildData(&data, with: boundary)
-        data.append(footer)
+        data.append(footer(boundary))
 
         request.setValue("\(data.count)", forHTTPHeaderField: "Content-Length")
         request.httpBody = data
@@ -25,23 +26,27 @@ public extension FormParam {
 }
 
 internal extension FormParam {
+    private var random: UInt32 {
+        .random(in: .min ... .max)
+    }
+
     private var boundary: String {
-        "Boundary-\(NSUUID().uuidString)"
+        String(format: "request.boundary.%08x%08x", random, random)
     }
 
     var breakLine: String {
         "\r\n"
     }
 
-    var header: Data {
+    func header(_ boundary: String) -> Data {
         .init("--\(boundary)\(breakLine)".utf8)
     }
 
     var middle: Data {
-        .init("\(breakLine)--\(boundary)\(breakLine)".utf8)
+        .init("\(breakLine)".utf8)
     }
 
-    var footer: Data {
+    func footer(_ boundary: String) -> Data {
         .init("\(breakLine)--\(boundary)--\(breakLine)".utf8)
     }
 
@@ -49,7 +54,7 @@ internal extension FormParam {
         let name = fileName.split(separator: ".").dropLast().joined(separator: ".")
 
         var contents = Data()
-        contents.append(Data("Content-Disposition: form-data; name=\(name); filename=\(fileName)\(breakLine)".utf8))
+        contents.append(Data("Content-Disposition: form-data; name=\"\(name)\"; filename=\"\(fileName)\"\(breakLine)".utf8))
         contents.append(Data("Content-Type: \(mime)\(breakLine)".utf8))
         return contents
     }

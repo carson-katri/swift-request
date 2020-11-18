@@ -15,8 +15,11 @@ public struct Form: FormParam {
     }
 
     public func buildData(_ data: inout Foundation.Data, with boundary: String) {
-        params.forEach {
+        params.dropLast().forEach {
             $0.buildData(&data, with: boundary)
+            data.append(middle)
         }
+
+        params.last?.buildData(&data, with: boundary)
     }
 }

@@ -485,6 +485,111 @@ final class RequestTests: XCTestCase {
         
         waitForExpectations(timeout: 10000)
     }
+
+    func testOptionalFormData() {
+        let data = "This will result in a optional data".data(using: .utf8)
+
+        performRequest(
+            Request {
+                Url("http://httpbin.org/post")
+                Method(.post)
+
+                Form {
+                    if let data = data {
+                        Form.Data("data.txt", .text, data)
+                    }
+                }
+            }
+        )
+    }
+
+    func testSwitchFormData() {
+        enum Payload {
+            case image(Data)
+            case cover(Data)
+        }
+
+        let payload = Payload.image("this is the user image".data(using: .utf8)!)
+
+        performRequest(
+            Request {
+                Url("http://httpbin.org/post")
+                Method(.post)
+
+                Form {
+                    switch payload {
+                    case .image(let data):
+                        Form.Data("image.txt", .text, data)
+                    case .cover(let data):
+                        Form.Data("cover.txt", .text, data)
+                    }
+                }
+            }
+        )
+    }
+
+    func testArrayFormData() {
+        let text1 = "Hello World!".data(using: .utf8)!
+        let text2 = "This is the second line of the document".data(using: .utf8)!
+
+        performRequest(
+            Request {
+                Url("http://httpbin.org/post")
+                Method(.post)
+
+                Form {
+                    Form.Data("text1.txt", .text, text1)
+                    Form.Data("text2.txt", .text, text2)
+                }
+            }
+        )
+    }
+
+    func testElseFormData() {
+        let nilData: Data? = nil
+
+        performRequest(
+            Request {
+                Url("http://httpbin.org/post")
+                Method(.post)
+
+                Form {
+                    if let data = nilData {
+                        Form.Data("data.txt", .text, data)
+                    } else {
+                        Form.Data("data.txt", .text, "Empty data sent".data(using: .utf8)!)
+                    }
+                }
+            }
+        )
+    }
+
+    func testEmptyFormData() {
+        performRequest(
+            Request {
+                Url("http://httpbin.org/post")
+                Method(.post)
+
+                Form {}
+            }
+        )
+    }
+
+    #if os(iOS) && targetEnvironment(simulator)
+    func testSingleFormFile() {
+        performRequest(
+            Request {
+                Url("http://httpbin.org/post")
+                Method(.post)
+
+                Form.File(
+                    mime: "image/jpg",
+                    Url("Media/DCIM/100APPLE/IMG_0001.JPG")
+                )
+            }
+        )
+    }
+    #endif
     
     func testPublisherUpdate() {
         let expectation = self.expectation(description: #function)

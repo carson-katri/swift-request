@@ -27,7 +27,7 @@ public extension Form {
         }
 
         public func buildData(_ data: inout Foundation.Data, with boundary: String) {
-            data.append(header)
+            data.append(header(boundary))
             data.append(disposition(fileName, mime: mime))
             data.append(Foundation.Data("\(breakLine)".utf8))
             data.append(self.data)

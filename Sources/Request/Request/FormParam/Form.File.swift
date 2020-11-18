@@ -33,7 +33,7 @@ public extension Form {
                 fatalError()
             }
 
-            data.append(header)
+            data.append(header(boundary))
             data.append(disposition(fileName, mime: mime))
             data.append(Foundation.Data("\(breakLine)".utf8))
             data.append(fileData)
