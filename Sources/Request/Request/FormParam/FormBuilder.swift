@@ -8,7 +8,7 @@
 import Foundation
 
 @_functionBuilder
-struct FormBuilder {
+public struct FormBuilder {
     public static func buildBlock(_ params: FormParam...) -> FormParam {
         Combined(params)
     }
