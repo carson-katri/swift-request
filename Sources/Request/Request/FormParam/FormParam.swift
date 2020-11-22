@@ -18,7 +18,10 @@ public extension FormParam {
 
         var data = Data()
         buildData(&data, with: boundary)
-        data.append(footer(boundary))
+
+        if !data.isEmpty {
+            data.append(footer(boundary))
+        }
 
         request.setValue("\(data.count)", forHTTPHeaderField: "Content-Length")
         request.httpBody = data

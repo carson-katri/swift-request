@@ -554,6 +554,31 @@ final class RequestTests: XCTestCase {
         )
     }
 
+    func testNestedArrayFormData() {
+        let text1 = "Hello World!".data(using: .utf8)!
+        let text2 = "This is the second line of the document".data(using: .utf8)!
+
+        performRequest(
+            Request {
+                Url("http://httpbin.org/post")
+                Method(.post)
+
+                Form {
+                    Form.Data("text1.txt", .text, text1)
+                    Form.Data("text2.txt", .text, text2)
+
+                    if true {
+                        Form.Data("text3.txt", .text, text1)
+                        Form.Data("text4.txt", .text, text2)
+                    }
+
+                    Form.Data("text5.txt", .text, text1)
+                    Form.Data("text6.txt", .text, text2)
+                }
+            }
+        )
+    }
+
     func testElseFormData() {
         let nilData: Data? = nil
 

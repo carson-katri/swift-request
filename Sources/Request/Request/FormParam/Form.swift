@@ -8,18 +8,17 @@
 import Foundation
 
 public struct Form: FormParam {
-    private let params: [FormParam]
+    private let rootParam: FormParam
 
     public init(@FormBuilder params: () -> FormParam) {
-        self.params = params().unzip
+        self.rootParam = params()
     }
 
     public func buildData(_ data: inout Foundation.Data, with boundary: String) {
-        params.dropLast().forEach {
-            $0.buildData(&data, with: boundary)
-            data.append(middle)
+        if rootParam is EmptyParam {
+            return
         }
 
-        params.last?.buildData(&data, with: boundary)
+        rootParam.buildData(&data, with: boundary)
     }
 }

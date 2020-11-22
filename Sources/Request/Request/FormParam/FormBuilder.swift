@@ -22,7 +22,7 @@ public struct FormBuilder {
     }
 
     public static func buildIf(_ param: FormParam?) -> FormParam {
-        EmptyParam()
+        param ?? EmptyParam()
     }
 
     public static func buildEither(first: FormParam) -> FormParam {
@@ -31,34 +31,5 @@ public struct FormBuilder {
 
     public static func buildEither(second: FormParam) -> FormParam {
         second
-    }
-}
-
-private extension FormBuilder {
-    struct Combined: FormParam {
-        let children: [FormParam]
-
-        init(_ children: [FormParam]) {
-            self.children = children
-        }
-
-        func buildData(_ data: inout Data, with boundary: String) {
-            fatalError()
-        }
-    }
-}
-
-private extension FormBuilder {
-    struct Empty: FormParam {
-        func buildData(_ data: inout Data, with boundary: String) {}
-    }
-}
-
-extension FormParam {
-    var unzip: [FormParam] {
-        (self as? FormBuilder.Combined).map {
-            $0.children
-                .reduce([]) { $0 + $1.unzip }
-        } ?? [self]
     }
 }
