@@ -43,7 +43,7 @@ public typealias Request = AnyRequest<Data>
 public struct AnyRequest<ResponseType> where ResponseType: Decodable {
     public let combineIdentifier = CombineIdentifier()
 
-    private var params: [RequestParam]
+    private var rootParam: RequestParam
     
     internal var onData: ((Data) -> Void)?
     internal var onString: ((String) -> Void)?
@@ -53,11 +53,11 @@ public struct AnyRequest<ResponseType> where ResponseType: Decodable {
     internal var updatePublisher: AnyPublisher<Void,Never>?
     
     public init(@RequestBuilder builder: () -> RequestParam) {
-        self.params = builder().unzip
+        rootParam = builder()
     }
     
-    internal init(params: [RequestParam]) {
-        self.params = params
+    internal init(rootParam: RequestParam) {
+        self.rootParam = rootParam
     }
     
     internal func modify(_ modify: (inout Self) -> Void) -> Self {
@@ -102,22 +102,11 @@ public struct AnyRequest<ResponseType> where ResponseType: Decodable {
     }
 
     internal func buildSession() -> AnyPublisher<(data: Data, response: URLResponse), Error> {
-        let params = self.params.sorted(by: { $0 is Url || ($1 is SessionParam) })
-
-        guard params.first is Url else {
-            fatalError("Request should contain at least one Url")
-        }
-
         var request = URLRequest(url: URL(string: "https://")!)
-        for param in params where !(param is SessionParam) {
-            param.buildParam(&request)
-        }
-        
-        // Configuration
         let configuration = URLSessionConfiguration.default
-        for config in params where config is SessionParam {
-            (config as? SessionParam)?.buildConfiguration(configuration)
-        }
+
+        rootParam.buildParam(&request)
+        (rootParam as? SessionParam)?.buildConfiguration(configuration)
 
         // PERFORM REQUEST
         return URLSession(configuration: configuration).dataTaskPublisher(for: request)

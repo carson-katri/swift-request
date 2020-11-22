@@ -59,7 +59,7 @@ public struct RequestChain {
     /// Perform the `Request`s in the chain, and optionally respond with the data from each one when complete.
     public func call(_ callback: @escaping ([Data?], [Error?]) -> Void = { (_, _) in }) {
         func _call(_ index: Int, data: [Data?], errors: [Error?], callback: @escaping ([Data?], [Error?]) -> Void) {
-            Request(params: self.requests[index](data, errors).unzip)
+            Request(rootParam: self.requests[index](data, errors))
                 .onData { res in
                     if index + 1 >= self.requests.count {
                         callback(data + [res], errors + [nil])
