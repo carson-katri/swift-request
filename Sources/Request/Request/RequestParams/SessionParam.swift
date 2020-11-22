@@ -8,11 +8,11 @@
 import Foundation
 
 public protocol SessionParam: RequestParam {
-    func buildConfiguration(_ sessionConfiguration: URLSessionConfiguration)
+    func buildConfiguration(_ configuration: URLSessionConfiguration)
 }
 
 extension SessionParam {
     public func buildParam(_ request: inout URLRequest) {
-        fatalError("SessionConfiguration shouldn't build URLRequest")
+        fatalError("SessionParam shouldn't build URLRequest")
     }
 }

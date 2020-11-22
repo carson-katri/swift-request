@@ -17,6 +17,10 @@ public struct RequestBuilder {
         param
     }
 
+    public static func buildBlock() -> EmptyParam {
+        EmptyParam()
+    }
+
     public static func buildIf(_ param: RequestParam?) -> RequestParam {
         param ?? EmptyParam()
     }

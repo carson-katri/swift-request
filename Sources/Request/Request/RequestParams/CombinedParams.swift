@@ -7,7 +7,7 @@
 
 import Foundation
 
-internal struct CombinedParams: RequestParam {
+internal struct CombinedParams: RequestParam, SessionParam {
     fileprivate let children: [RequestParam]
 
     init(children: [RequestParam]) {
@@ -15,18 +15,19 @@ internal struct CombinedParams: RequestParam {
     }
 
     func buildParam(_ request: inout URLRequest) {
-        children.forEach {
-            $0.buildParam(&request)
-        }
+        children
+            .sorted { a, _ in (a is Url) }
+            .filter { !($0 is SessionParam) || $0 is CombinedParams }
+            .forEach {
+                $0.buildParam(&request)
+            }
     }
-}
 
-extension RequestParam {
-    var unzip: [RequestParam] {
-        if let combined = self as? CombinedParams {
-            return combined.children
-        }
-
-        return [self]
+    func buildConfiguration(_ configuration: URLSessionConfiguration) {
+        children
+            .compactMap { $0 as? SessionParam }
+            .forEach {
+                $0.buildConfiguration(configuration)
+            }
     }
 }

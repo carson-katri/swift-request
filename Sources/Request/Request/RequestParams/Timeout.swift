@@ -17,13 +17,13 @@ public struct Timeout: SessionParam {
         self.source = source
     }
 
-    public func buildConfiguration(_ sessionConfiguration: URLSessionConfiguration) {
+    public func buildConfiguration(_ configuration: URLSessionConfiguration) {
         if source.contains(.request) {
-            sessionConfiguration.timeoutIntervalForRequest = timeout
+            configuration.timeoutIntervalForRequest = timeout
         }
 
         if source.contains(.resource) {
-            sessionConfiguration.timeoutIntervalForResource = timeout
+            configuration.timeoutIntervalForResource = timeout
         }
     }
 }
