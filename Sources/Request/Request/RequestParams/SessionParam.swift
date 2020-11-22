@@ -12,5 +12,7 @@ public protocol SessionParam: RequestParam {
 }
 
 extension SessionParam {
-    public func buildParam(_ request: inout URLRequest) {}
+    public func buildParam(_ request: inout URLRequest) {
+        fatalError("SessionParam shouldn't build URLRequest")
+    }
 }
