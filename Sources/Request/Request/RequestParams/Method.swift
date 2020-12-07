@@ -22,10 +22,13 @@ public enum MethodType: String {
 
 /// Sets the method of the `Request`
 public struct Method: RequestParam {
-    public var type: RequestParamType = .method
-    public var value: Any?
+    public var type: MethodType?
     
     public init(_ type: MethodType) {
-        self.value = type
+        self.type = type
+    }
+
+    public func buildParam(_ request: inout URLRequest) {
+        request.httpMethod = type?.rawValue
     }
 }

@@ -33,22 +33,25 @@ import Foundation
 ///     }
 ///
 public struct Body: RequestParam {
-    public var type: RequestParamType = .body
-    public var value: Any?
+    private let data: Data?
     
     /// Creates the `Body` from key-value pairs
     public init(_ dict: [String:Any]) {
-        self.value = try? JSONSerialization.data(withJSONObject: dict, options: .prettyPrinted)
+        self.data = try? JSONSerialization.data(withJSONObject: dict, options: .prettyPrinted)
     }
     
     /// Creates the `Body` from an `Encodable` type using `JSONEncoder`
     public init<T: Encodable>(_ value: T) {
-        self.value = try? JSONEncoder().encode(value)
+        self.data = try? JSONEncoder().encode(value)
     }
     
     /// Creates the `Body` from a `String`
     public init(_ string: String) {
-        self.value = string.data(using: .utf8)
+        self.data = string.data(using: .utf8)
+    }
+
+    public func buildParam(_ request: inout URLRequest) {
+        request.httpBody = data
     }
 }
 

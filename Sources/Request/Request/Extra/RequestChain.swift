@@ -59,28 +59,22 @@ public struct RequestChain {
     /// Perform the `Request`s in the chain, and optionally respond with the data from each one when complete.
     public func call(_ callback: @escaping ([Data?], [Error?]) -> Void = { (_, _) in }) {
         func _call(_ index: Int, data: [Data?], errors: [Error?], callback: @escaping ([Data?], [Error?]) -> Void) {
-            var params = self.requests[index](data, errors)
-            if !(params is CombinedParams) {
-                params = CombinedParams(children: [params])
-            } else {
-                params = self.requests[index](data, errors) as! CombinedParams
-            }
-            Request(params: params as! CombinedParams)
-            .onData { res in
-                if index + 1 >= self.requests.count {
-                    callback(data + [res], errors + [nil])
-                } else {
-                    _call(index + 1, data: data + [res], errors: errors + [nil], callback: callback)
+            Request(rootParam: self.requests[index](data, errors))
+                .onData { res in
+                    if index + 1 >= self.requests.count {
+                        callback(data + [res], errors + [nil])
+                    } else {
+                        _call(index + 1, data: data + [res], errors: errors + [nil], callback: callback)
+                    }
                 }
-            }
-            .onError { err in
-                if index + 1 >= self.requests.count {
-                    callback(data + [nil], errors + [err])
-                } else {
-                    _call(index + 1, data: data + [nil], errors: errors + [err], callback: callback)
+                .onError { err in
+                    if index + 1 >= self.requests.count {
+                        callback(data + [nil], errors + [err])
+                    } else {
+                        _call(index + 1, data: data + [nil], errors: errors + [err], callback: callback)
+                    }
                 }
-            }
-            .call()
+                .call()
         }
         _call(0, data: [], errors: [], callback: callback)
     }

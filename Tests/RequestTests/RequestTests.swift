@@ -66,6 +66,15 @@ final class RequestTests: XCTestCase {
         })
     }
 
+    func testQuerySingleParams() {
+        performRequest(Request {
+            Url("https://jsonplaceholder.typicode.com/todos")
+            Method(.get)
+            QueryParam("userId", value: "1")
+            QueryParam("password", value: "2")
+        })
+    }
+
     func testQuery() {
         performRequest(Request {
             Url("https://jsonplaceholder.typicode.com/todos")
@@ -76,9 +85,9 @@ final class RequestTests: XCTestCase {
     }
 
     func testURLConcatenatedStringQuery() {
-        let baseUrl = Url("https://jsonplaceholder.typicode.com")
+        let baseUrl = Url(protocol: .https, url: "jsonplaceholder.typicode.com")
         let todosEndpoint = "/todos"
-        
+
         XCTAssertEqual(baseUrl + todosEndpoint, Url("https://jsonplaceholder.typicode.com/todos"))
     }
 
