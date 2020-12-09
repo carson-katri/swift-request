@@ -505,7 +505,7 @@ final class RequestTests: XCTestCase {
 
                 Form {
                     if let data = data {
-                        Form.Data("data.txt", .text, data)
+                        Form.Data(data, named: "data.txt", withType: .text)
                     }
                 }
             }
@@ -528,9 +528,9 @@ final class RequestTests: XCTestCase {
                 Form {
                     switch payload {
                     case .image(let data):
-                        Form.Data("image.txt", .text, data)
+                        Form.Data(data, named: "image.txt", withType: .text)
                     case .cover(let data):
-                        Form.Data("cover.txt", .text, data)
+                        Form.Data(data, named: "cover.txt", withType: .text)
                     }
                 }
             }
@@ -547,8 +547,8 @@ final class RequestTests: XCTestCase {
                 Method(.post)
 
                 Form {
-                    Form.Data("text1.txt", .text, text1)
-                    Form.Data("text2.txt", .text, text2)
+                    Form.Data(text1, named: "text1.txt", withType: .text)
+                    Form.Data(text2, named: "text2.txt", withType: .text)
                 }
             }
         )
@@ -564,16 +564,16 @@ final class RequestTests: XCTestCase {
                 Method(.post)
 
                 Form {
-                    Form.Data("text1.txt", .text, text1)
-                    Form.Data("text2.txt", .text, text2)
+                    Form.Data(text1, named: "text1.txt", withType: .text)
+                    Form.Data(text2, named: "text2.txt", withType: .text)
 
                     if true {
-                        Form.Data("text3.txt", .text, text1)
-                        Form.Data("text4.txt", .text, text2)
+                        Form.Data(text1, named: "text3.txt", withType: .text)
+                        Form.Data(text2, named: "text4.txt", withType: .text)
                     }
 
-                    Form.Data("text5.txt", .text, text1)
-                    Form.Data("text6.txt", .text, text2)
+                    Form.Data(text1, named: "text5.txt", withType: .text)
+                    Form.Data(text2, named: "text6.txt", withType: .text)
                 }
             }
         )
@@ -589,9 +589,13 @@ final class RequestTests: XCTestCase {
 
                 Form {
                     if let data = nilData {
-                        Form.Data("data.txt", .text, data)
+                        Form.Data(data, named: "data.txt", withType: .text)
                     } else {
-                        Form.Data("data.txt", .text, "Empty data sent".data(using: .utf8)!)
+                        Form.Data(
+                            "Empty data sent".data(using: .utf8)!,
+                            named: "data.txt",
+                            withType: .text
+                        )
                     }
                 }
             }
@@ -617,8 +621,8 @@ final class RequestTests: XCTestCase {
                 Method(.post)
 
                 Form.File(
-                    mime: "image/jpg",
-                    Url("Media/DCIM/100APPLE/IMG_0001.JPG")
+                    Url("Media/DCIM/100APPLE/IMG_0001.JPG"),
+                    withType: .custom("image/jpg")
                 )
             }
         )

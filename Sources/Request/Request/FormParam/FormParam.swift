@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  FormParam.swift
 //  
 //
 //  Created by brennobemoura on 16/11/20.
@@ -53,12 +53,12 @@ internal extension FormParam {
         .init("\(breakLine)--\(boundary)--\(breakLine)".utf8)
     }
 
-    func disposition<S>(_ fileName: S, mime: String) -> Data where S: StringProtocol {
+    func disposition<S>(_ fileName: S, withType mediaType: String) -> Data where S: StringProtocol {
         let name = fileName.split(separator: ".").dropLast().joined(separator: ".")
 
         var contents = Data()
         contents.append(Data("Content-Disposition: form-data; name=\"\(name)\"; filename=\"\(fileName)\"\(breakLine)".utf8))
-        contents.append(Data("Content-Type: \(mime)\(breakLine)".utf8))
+        contents.append(Data("Content-Type: \(mediaType)\(breakLine)".utf8))
         return contents
     }
 }

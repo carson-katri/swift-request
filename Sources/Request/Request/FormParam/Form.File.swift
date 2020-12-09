@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  Form.File.swift
 //  
 //
 //  Created by brennobemoura on 16/11/20.
@@ -11,18 +11,16 @@ public extension Form {
     struct File: FormParam {
         private let path: Url
         private let fileManager: FileManager
-        private let mime: String
+        private let mediaType: String
 
-        public init(_ mediaType: MediaType, _ url: Url, _ fileManager: FileManager = .default) {
+        public init(_ url: Url, withType mediaType: MediaType, _ fileManager: FileManager = .default) {
             self.path = url
             self.fileManager = fileManager
-            self.mime = mediaType.rawValue
+            self.mediaType = mediaType.description
         }
 
-        public init(mime: String, _ url: Url, _ fileManager: FileManager = .default) {
-            self.path = url
-            self.fileManager = fileManager
-            self.mime = mime
+        public init(_ url: Url, _ fileManager: FileManager = .default) throws {
+            fatalError("init(_:, _:) throw not implemented")
         }
 
         public func buildData(_ data: inout Foundation.Data, with boundary: String) {
@@ -30,11 +28,11 @@ public extension Form {
                 let fileData = fileManager.contents(atPath: path.absoluteString),
                 let fileName = path.absoluteString.split(separator: "/").last
             else {
-                fatalError()
+                fatalError("\(path.absoluteString) is not a file or it doesn't contains a valid file name")
             }
 
             data.append(header(boundary))
-            data.append(disposition(fileName, mime: mime))
+            data.append(disposition(fileName, withType: mediaType))
             data.append(Foundation.Data("\(breakLine)".utf8))
             data.append(fileData)
         }

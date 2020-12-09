@@ -9,30 +9,55 @@
 import Foundation
 
 /// A MIME type to be used with the `Accept` and `Content-Type` headers.
-public enum MediaType: String {
-    case json = "application/json"
-    case xml = "application/xml"
+public enum MediaType: CustomStringConvertible {
+    case json
+    case xml
 
-    case text = "text/plain"
-    case html = "text/html"
-    case css = "text/css"
-    case javascript = "text/javascript"
+    case text
+    case html
+    case css
+    case javascript
 
-    case gif = "image/git"
-    case png = "image/png"
-    case jpeg = "image/jpeg"
-    case bmp = "image/bmp"
-    case webp = "image/webp"
+    case gif
+    case png
+    case jpeg
+    case bmp
+    case webp
 
-    case midi = "audio/midi"
-    case mpeg = "audio/mpeg"
-    case webmAudio = "audio/webm"
-    case oggAudio = "audio/ogg"
-    case wav = "audio/wav"
+    case midi
+    case mpeg
+    case wav
 
-    case webmVideo = "video/webm"
-    case oggVideo = "video/ogg"
+    case pdf
 
-    case pdf = "application/pdf"
+    case custom(String)
 
+}
+
+extension MediaType {
+    public var description: String {
+        switch self {
+        case .json: return "application/json"
+        case .xml:  return "application/xml"
+
+        case .text:         return "text/plain"
+        case .html:         return "text/html"
+        case .css:          return "text/css"
+        case .javascript:   return "text/javascript"
+
+        case .gif:  return "image/git"
+        case .png:  return "image/png"
+        case .jpeg: return "image/jpeg"
+        case .bmp:  return "image/bmp"
+        case .webp: return "image/webp"
+
+        case .midi: return "audio/midi"
+        case .mpeg: return "audio/mpeg"
+        case .wav:  return "audio/wav"
+
+        case .pdf:  return "application/pdf"
+
+        case .custom(let string): return string
+        }
+    }
 }

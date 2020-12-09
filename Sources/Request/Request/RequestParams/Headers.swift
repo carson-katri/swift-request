@@ -11,7 +11,7 @@ import Foundation
 public extension Header {
     /// Specifies the media type the client is expecting and able to handle
     static func Accept(_ type: MediaType) -> RequestParam {
-        Header.Any(key: "Accept", value: type.rawValue)
+        Header.Any(key: "Accept", value: type.description)
     }
     /// Sets the `Accept` header to a custom MIME type
     /// - Parameter type: The MIME type, such as: `application/json`
@@ -35,7 +35,7 @@ public extension Header {
     /// The `MediaType` of the `Body`
     /// - Note: Used with `Method(.post)` and `Method(.put)`
     static func ContentType(_ type: MediaType) -> RequestParam {
-        Header.Any(key: "Content-Type", value: type.rawValue)
+        Header.Any(key: "Content-Type", value: type.description)
     }
     
     /// The domain name of the server (for virtual hosting), and optionally, the port.
