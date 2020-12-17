@@ -9,7 +9,9 @@
 import Foundation
 
 /// A MIME type to be used with the `Accept` and `Content-Type` headers.
-public enum MediaType: CustomStringConvertible {
+public enum MediaType: ExpressibleByStringLiteral {
+    public typealias StringLiteralType = String
+
     case json
     case xml
 
@@ -32,32 +34,36 @@ public enum MediaType: CustomStringConvertible {
 
     case custom(String)
 
+    public init(stringLiteral value: String) {
+        self = .custom(value)
+    }
 }
 
 extension MediaType {
-    public var description: String {
+    public var rawValue: String {
         switch self {
-        case .json: return "application/json"
-        case .xml:  return "application/xml"
+        case .json:         return "application/json"
+        case .xml:          return "application/xml"
 
         case .text:         return "text/plain"
         case .html:         return "text/html"
         case .css:          return "text/css"
         case .javascript:   return "text/javascript"
 
-        case .gif:  return "image/git"
-        case .png:  return "image/png"
-        case .jpeg: return "image/jpeg"
-        case .bmp:  return "image/bmp"
-        case .webp: return "image/webp"
+        case .gif:          return "image/git"
+        case .png:          return "image/png"
+        case .jpeg:         return "image/jpeg"
+        case .bmp:          return "image/bmp"
+        case .webp:         return "image/webp"
 
-        case .midi: return "audio/midi"
-        case .mpeg: return "audio/mpeg"
-        case .wav:  return "audio/wav"
+        case .midi:         return "audio/midi"
+        case .mpeg:         return "audio/mpeg"
+        case .wav:          return "audio/wav"
 
-        case .pdf:  return "application/pdf"
+        case .pdf:          return "application/pdf"
 
-        case .custom(let string): return string
+        case .custom(let string):
+            return string
         }
     }
 }

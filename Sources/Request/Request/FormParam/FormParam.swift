@@ -53,7 +53,7 @@ internal extension FormParam {
         .init("\(breakLine)--\(boundary)--\(breakLine)".utf8)
     }
 
-    func disposition<S>(_ fileName: S, withType mediaType: String) -> Data where S: StringProtocol {
+    func disposition<S>(_ fileName: S, withType mediaType: MediaType) -> Data where S: StringProtocol {
         let name = fileName.split(separator: ".").dropLast().joined(separator: ".")
 
         var contents = Data()

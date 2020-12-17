@@ -11,7 +11,7 @@ public extension Form {
     struct Data: FormParam {
         private let data: Foundation.Data
         private let fileName: String
-        private let mediaType: String
+        private let mediaType: MediaType
 
         /// Creates a multipart form data body from `Data`.
         ///
@@ -20,7 +20,7 @@ public extension Form {
         public init(_ data: Foundation.Data, named fileName: String, withType mediaType: MediaType) {
             self.fileName = fileName
             self.data = data
-            self.mediaType = mediaType.description
+            self.mediaType = mediaType
         }
 
         public func buildData(_ data: inout Foundation.Data, with boundary: String) {

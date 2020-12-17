@@ -11,12 +11,12 @@ public extension Form {
     struct File: FormParam {
         private let path: Url
         private let fileManager: FileManager
-        private let mediaType: String
+        private let mediaType: MediaType
 
         public init(_ url: Url, withType mediaType: MediaType, _ fileManager: FileManager = .default) {
             self.path = url
             self.fileManager = fileManager
-            self.mediaType = mediaType.description
+            self.mediaType = mediaType
         }
 
         public init(_ url: Url, _ fileManager: FileManager = .default) throws {
