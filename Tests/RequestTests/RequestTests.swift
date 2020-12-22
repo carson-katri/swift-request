@@ -494,6 +494,140 @@ final class RequestTests: XCTestCase {
         
         waitForExpectations(timeout: 10000)
     }
+
+    func testOptionalFormData() {
+        let data = "This will result in a optional data".data(using: .utf8)
+
+        performRequest(
+            Request {
+                Url("http://httpbin.org/post")
+                Method(.post)
+
+                Form {
+                    if let data = data {
+                        Form.Data(data, named: "data.txt", withType: .text)
+                    }
+                }
+            }
+        )
+    }
+
+    func testSwitchFormData() {
+        enum Payload {
+            case image(Data)
+            case cover(Data)
+        }
+
+        let payload = Payload.image("this is the user image".data(using: .utf8)!)
+
+        performRequest(
+            Request {
+                Url("http://httpbin.org/post")
+                Method(.post)
+
+                Form {
+                    switch payload {
+                    case .image(let data):
+                        Form.Data(data, named: "image.txt", withType: .text)
+                    case .cover(let data):
+                        Form.Data(data, named: "cover.txt", withType: .text)
+                    }
+                }
+            }
+        )
+    }
+
+    func testArrayFormData() {
+        let text1 = "Hello World!".data(using: .utf8)!
+        let text2 = "This is the second line of the document".data(using: .utf8)!
+
+        performRequest(
+            Request {
+                Url("http://httpbin.org/post")
+                Method(.post)
+
+                Form {
+                    Form.Data(text1, named: "text1.txt", withType: .text)
+                    Form.Data(text2, named: "text2.txt", withType: .text)
+                }
+            }
+        )
+    }
+
+    func testNestedArrayFormData() {
+        let text1 = "Hello World!".data(using: .utf8)!
+        let text2 = "This is the second line of the document".data(using: .utf8)!
+
+        performRequest(
+            Request {
+                Url("http://httpbin.org/post")
+                Method(.post)
+
+                Form {
+                    Form.Data(text1, named: "text1.txt", withType: .text)
+                    Form.Data(text2, named: "text2.txt", withType: .text)
+
+                    if true {
+                        Form.Data(text1, named: "text3.txt", withType: .text)
+                        Form.Data(text2, named: "text4.txt", withType: .text)
+                    }
+
+                    Form.Data(text1, named: "text5.txt", withType: .text)
+                    Form.Data(text2, named: "text6.txt", withType: .text)
+                }
+            }
+        )
+    }
+
+    func testElseFormData() {
+        let nilData: Data? = nil
+
+        performRequest(
+            Request {
+                Url("http://httpbin.org/post")
+                Method(.post)
+
+                Form {
+                    if let data = nilData {
+                        Form.Data(data, named: "data.txt", withType: .text)
+                    } else {
+                        Form.Data(
+                            "Empty data sent".data(using: .utf8)!,
+                            named: "data.txt",
+                            withType: .text
+                        )
+                    }
+                }
+            }
+        )
+    }
+
+    func testEmptyFormData() {
+        performRequest(
+            Request {
+                Url("http://httpbin.org/post")
+                Method(.post)
+
+                Form {}
+            }
+        )
+    }
+
+    #if os(iOS) && targetEnvironment(simulator)
+    func testSingleFormFile() {
+        performRequest(
+            Request {
+                Url("http://httpbin.org/post")
+                Method(.post)
+
+                Form.File(
+                    Url("Media/DCIM/100APPLE/IMG_0001.JPG"),
+                    withType: .custom("image/jpg")
+                )
+            }
+        )
+    }
+    #endif
     
     func testPublisherUpdate() {
         let expectation = self.expectation(description: #function)

@@ -27,7 +27,7 @@ public struct Url: RequestParam {
         request.url = URL(string: absoluteString)
     }
 
-    fileprivate var absoluteString: String {
+    internal var absoluteString: String {
         if let type = type {
             return "\(type.rawValue)://\(path)"
         }
