@@ -93,7 +93,7 @@ public struct AnyRequest<ResponseType> where ResponseType: Decodable {
     
     /// Performs the `Request`, and calls the `onData`, `onString`, `onJson`, and `onError` callbacks when appropriate.
     public func call() {
-        buildSession()
+        buildPublisher()
             .subscribe(self)
         if let updatePublisher = self.updatePublisher {
             updatePublisher
@@ -101,15 +101,20 @@ public struct AnyRequest<ResponseType> where ResponseType: Decodable {
         }
     }
 
-    internal func buildSession() -> AnyPublisher<(data: Data, response: URLResponse), Error> {
+    internal func buildSession() -> (configuration: URLSessionConfiguration, request: URLRequest) {
         var request = URLRequest(url: URL(string: "https://")!)
         let configuration = URLSessionConfiguration.default
 
         rootParam.buildParam(&request)
         (rootParam as? SessionParam)?.buildConfiguration(configuration)
-
+        
+        return (configuration, request)
+    }
+    
+    internal func buildPublisher() -> AnyPublisher<(data: Data, response: URLResponse), Error> {
         // PERFORM REQUEST
-        return URLSession(configuration: configuration).dataTaskPublisher(for: request)
+        let session = buildSession()
+        return URLSession(configuration: session.configuration).dataTaskPublisher(for: session.request)
             .mapError { $0 }
             .eraseToAnyPublisher()
     }
@@ -130,3 +135,12 @@ public struct AnyRequest<ResponseType> where ResponseType: Decodable {
         self.update(publisher: Timer.publish(every: seconds, on: .main, in: .common).autoconnect())
     }
 }
+
+extension AnyRequest: Equatable {
+    public static func == (lhs: AnyRequest<ResponseType>, rhs: AnyRequest<ResponseType>) -> Bool {
+        let lhsSession = lhs.buildSession()
+        let rhsSession = rhs.buildSession()
+        return lhsSession.configuration == rhsSession.configuration && lhsSession.request == rhsSession.request
+    }
+}
+
