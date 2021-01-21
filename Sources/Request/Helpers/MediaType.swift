@@ -50,7 +50,7 @@ extension MediaType {
         case .css:          return "text/css"
         case .javascript:   return "text/javascript"
 
-        case .gif:          return "image/git"
+        case .gif:          return "image/gif"
         case .png:          return "image/png"
         case .jpeg:         return "image/jpeg"
         case .bmp:          return "image/bmp"
