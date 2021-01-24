@@ -15,7 +15,7 @@ import SwiftUI
 public struct RequestImage<Placeholder: View>: View {
     private let request: Request
     private let placeholder: Placeholder
-    private let animation: Animation
+    private let animation: Animation?
     private let contentMode: ContentMode
     #if os(OSX)
     @State private var image: NSImage? = nil
@@ -23,7 +23,7 @@ public struct RequestImage<Placeholder: View>: View {
     @State private var image: UIImage? = nil
     #endif
     
-    public init(_ url: Url, @ViewBuilder placeholder: () -> Placeholder, contentMode: ContentMode = .fill, animation: Animation = .easeInOut) {
+    public init(_ url: Url, @ViewBuilder placeholder: () -> Placeholder, contentMode: ContentMode = .fill, animation: Animation? = .easeInOut) {
         self.request = Request { url }
         self.placeholder = placeholder()
         self.animation = animation
@@ -61,24 +61,24 @@ public struct RequestImage<Placeholder: View>: View {
 
 extension RequestImage where Placeholder == Image {
     #if os(OSX)
-    public init(_ url: Url, placeholder: Image = Image(nsImage: NSImage()), contentMode: ContentMode = .fill, animation: Animation = .easeInOut) {
+    public init(_ url: Url, placeholder: Image = Image(nsImage: NSImage()), contentMode: ContentMode = .fill, animation: Animation? = .easeInOut) {
         self.init(Request { url }, placeholder: placeholder, contentMode: contentMode, animation: animation)
     }
     #else
-    public init(_ url: Url, placeholder: Image = Image(uiImage: UIImage()), contentMode: ContentMode = .fill, animation: Animation = .easeInOut) {
+    public init(_ url: Url, placeholder: Image = Image(uiImage: UIImage()), contentMode: ContentMode = .fill, animation: Animation? = .easeInOut) {
         self.init(Request { url }, placeholder: placeholder, contentMode: contentMode, animation: animation)
     }
     #endif
     
     #if os(OSX)
-    public init(_ request: Request, placeholder: Image = Image(nsImage: NSImage()), contentMode: ContentMode = .fill, animation: Animation = .easeInOut) {
+    public init(_ request: Request, placeholder: Image = Image(nsImage: NSImage()), contentMode: ContentMode = .fill, animation: Animation? = .easeInOut) {
         self.request = request
         self.placeholder = placeholder.resizable()
         self.animation = animation
         self.contentMode = contentMode
     }
     #else
-    public init(_ request: Request, placeholder: Image = Image(uiImage: UIImage()), contentMode: ContentMode = .fill, animation: Animation = .easeInOut) {
+    public init(_ request: Request, placeholder: Image = Image(uiImage: UIImage()), contentMode: ContentMode = .fill, animation: Animation? = .easeInOut) {
         self.request = request
         self.placeholder = placeholder.resizable()
         self.animation = animation
