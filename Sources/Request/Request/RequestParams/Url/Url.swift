@@ -34,6 +34,16 @@ public struct Url: RequestParam, Codable {
 
         return path
     }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        self.init(try container.decode(String.self))
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(absoluteString)
+    }
 }
 
 extension Url: Equatable {

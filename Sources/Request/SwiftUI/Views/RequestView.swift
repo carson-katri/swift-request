@@ -18,6 +18,7 @@ public struct RequestView<Value, Content> : View where Value: Decodable, Content
     private let request: AnyRequest<Value>
     private let content: (RequestStatus<Value>) -> Content
     @State private var result: RequestStatus<Value> = .loading
+    @State private var performedOnAppear = false
     @State private var cancellables: [AnyCancellable] = []
     
     public init(
@@ -48,24 +49,26 @@ public struct RequestView<Value, Content> : View where Value: Decodable, Content
     
     public var body: some View {
         if #available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *) {
-            VStack {
+            Group {
                 content(result)
             }
                 .onAppear {
-                    if case .loading = result {
+                    if !performedOnAppear {
                         perform()
+                        performedOnAppear = true
                     }
                 }
                 .onChange(of: request) { _ in
                     perform()
                 }
         } else {
-            VStack {
+            Group {
                 content(result)
             }
                 .onAppear {
-                    if case .loading = result {
+                    if !performedOnAppear {
                         perform()
+                        performedOnAppear = true
                     }
                 }
         }
