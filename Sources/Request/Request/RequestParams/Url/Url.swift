@@ -9,7 +9,7 @@ import Foundation
 
 /// Sets the URL of the `Request`.
 /// - Precondition: Only use one URL in your `Request`. To group or chain requests, use a `RequestGroup` or `RequestChain`.
-public struct Url: RequestParam {
+public struct Url: RequestParam, Codable {
     private let type: ProtocolType?
     fileprivate let path: String
     

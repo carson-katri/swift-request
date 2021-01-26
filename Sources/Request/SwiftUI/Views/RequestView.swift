@@ -15,8 +15,6 @@ import Combine
 ///
 /// It takes a `Request`, a placeholder and any content you want rendered.
 public struct RequestView<Value, Content> : View where Value: Decodable, Content: View {
-//    private let request: Request
-//    private let content: (Data?) -> TupleView<(Content, Placeholder)>
     private let request: AnyRequest<Value>
     private let content: (RequestStatus<Value>) -> Content
     @State private var result: RequestStatus<Value> = .loading
@@ -32,7 +30,6 @@ public struct RequestView<Value, Content> : View where Value: Decodable, Content
     }
     
     func perform() {
-        print("Calling")
         self.result = .loading
         request
             .objectPublisher
@@ -55,7 +52,9 @@ public struct RequestView<Value, Content> : View where Value: Decodable, Content
                 content(result)
             }
                 .onAppear {
-                    perform()
+                    if case .loading = result {
+                        perform()
+                    }
                 }
                 .onChange(of: request) { _ in
                     perform()
@@ -65,19 +64,11 @@ public struct RequestView<Value, Content> : View where Value: Decodable, Content
                 content(result)
             }
                 .onAppear {
-                    perform()
+                    if case .loading = result {
+                        perform()
+                    }
                 }
         }
-//        if data == nil/* || oldReq == nil || oldReq?.id != request.id*/ {
-//            let req = self.request.onData { data in
-//                self.oldReq = self.request
-//                self.data = data
-//            }
-//            req.call()
-//            return AnyView(content(nil).value.1)
-//        } else {
-//            return AnyView(content(data).value.0)
-//        }
     }
 }
 
