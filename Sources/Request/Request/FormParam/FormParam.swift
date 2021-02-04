@@ -54,11 +54,26 @@ internal extension FormParam {
     }
 
     func disposition<S>(_ fileName: S, withType mediaType: MediaType) -> Data where S: StringProtocol {
-        let name = fileName.split(separator: ".").dropLast().joined(separator: ".")
+        let name: String = {
+            if fileName.contains(".") {
+                return fileName
+                    .split(separator: ".")
+                    .dropLast()
+                    .joined(separator: ".")
+            }
+
+            return "\(fileName)"
+        }()
 
         var contents = Data()
-        contents.append(Data("Content-Disposition: form-data; name=\"\(name)\"; filename=\"\(fileName)\"\(breakLine)".utf8))
-        contents.append(Data("Content-Type: \(mediaType)\(breakLine)".utf8))
+
+        contents.append(Data("Content-Disposition: form-data; name=\"\(name)\";".utf8))
+        contents.append(Data("filename=\"\(fileName)\"".utf8))
+        contents.append(Data(breakLine.utf8))
+
+        contents.append(Data("Content-Type: \(mediaType)".utf8))
+        contents.append(Data(breakLine.utf8))
+
         return contents
     }
 }
