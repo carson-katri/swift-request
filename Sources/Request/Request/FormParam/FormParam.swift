@@ -61,4 +61,8 @@ internal extension FormParam {
         contents.append(Data("Content-Type: \(mediaType)\(breakLine)".utf8))
         return contents
     }
+
+    func disposition<S>(_ name: S) -> Data where S: StringProtocol {
+        Data("Content-Disposition: form-data; name=\"\(name)\"\(breakLine)".utf8)
+    }
 }
