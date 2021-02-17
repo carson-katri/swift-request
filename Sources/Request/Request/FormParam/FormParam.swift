@@ -54,16 +54,15 @@ internal extension FormParam {
     }
 
     func disposition<S>(_ fileName: S, withType mediaType: MediaType) -> Data where S: StringProtocol {
-        let name: String = {
-            if fileName.contains(".") {
-                return fileName
-                    .split(separator: ".")
-                    .dropLast()
-                    .joined(separator: ".")
-            }
-
-            return "\(fileName)"
-        }()
+        let name: String
+        if fileName.contains(".") {
+            name = fileName
+                .split(separator: ".")
+                .dropLast()
+                .joined(separator: ".")
+        } else {
+            name = "\(fileName)"
+        }
 
         var contents = Data()
 
