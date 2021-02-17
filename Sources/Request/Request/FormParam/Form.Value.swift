@@ -15,7 +15,7 @@ public extension Form {
         /// Creates a multipart form data body from `Encodable` value.
         ///
         /// - Parameter key: The key being sent. Example: `name`
-        /// - Parameter element: The element that will be inserted in form data body. Example: `test`
+        /// - Parameter element: The element that will be inserted in the form data body. Example: `test`
         ///
         public init(key: String, _ element: Element) {
             self.key = key
