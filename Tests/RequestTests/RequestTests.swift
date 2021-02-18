@@ -537,6 +537,21 @@ final class RequestTests: XCTestCase {
         )
     }
 
+    func testValueFormData() {
+        performRequest(
+            Request {
+                Url("http://httpbin.org/post")
+                Method(.post)
+
+                Form {
+                    Form.Value(key: "name", "test")
+                    Form.Value(key: "email", "test@gmail.com")
+                    Form.Value(key: "age", 17)
+                }
+            }
+        )
+    }
+
     func testArrayFormData() {
         let text1 = "Hello World!".data(using: .utf8)!
         let text2 = "This is the second line of the document".data(using: .utf8)!
