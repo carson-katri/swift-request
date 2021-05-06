@@ -16,7 +16,7 @@ extension AnyRequest: Publisher {
     public func receive<S>(subscriber: S) where S : Subscriber, S.Failure == Failure, S.Input == Output {
         updatePublisher?
             .receive(subscriber: UpdateSubscriber(request: self))
-        buildSession()
+        buildPublisher()
             .subscribe(subscriber)
     }
     
