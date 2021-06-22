@@ -50,6 +50,7 @@ public struct AnyRequest<ResponseType> where ResponseType: Decodable {
     internal var onJson: ((Json) -> Void)?
     internal var onObject: ((ResponseType) -> Void)?
     internal var onError: ((Error) -> Void)?
+    internal var onStatusCode: ((Int) -> Void)?
     internal var updatePublisher: AnyPublisher<Void,Never>?
     
     public init(@RequestBuilder builder: () -> RequestParam) {
@@ -89,6 +90,11 @@ public struct AnyRequest<ResponseType> where ResponseType: Decodable {
     /// Handle any `Error`s thrown by the `Request`
     public func onError(_ callback: @escaping (Error) -> Void) -> Self {
         modify { $0.onError = callback }
+    }
+    
+    /// Sets the `onStatusCode` callback to be run whenever a `HTTPStatus` is retrieved
+    public func onStatusCode(_ callback: @escaping (Int) -> Void) -> Self {
+        modify { $0.onStatusCode = callback }
     }
     
     /// Performs the `Request`, and calls the `onData`, `onString`, `onJson`, and `onError` callbacks when appropriate.

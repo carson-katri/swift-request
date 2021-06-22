@@ -150,6 +150,39 @@ final class RequestTests: XCTestCase {
         })
     }
     
+    func testStatusCode() {
+        let expectation = self.expectation(description: #function)
+        let statusCodeExpectation = self.expectation(description: #function+"status")
+        var response: String? = nil
+        var error: Error? = nil
+        var statusCode: Int? = nil
+        
+        Request {
+            Url("https://jsonplaceholder.typicode.com/todos")
+        }
+        .onError { err in
+            error = err
+            expectation.fulfill()
+        }
+        .onString { result in
+            response = result
+            expectation.fulfill()
+        }
+        .onStatusCode { code in
+            statusCode = code
+            statusCodeExpectation.fulfill()
+        }
+        .call()
+        waitForExpectations(timeout: 10000)
+        if error != nil {
+            XCTAssert(false)
+        } else if statusCode != nil {
+            XCTAssert(true)
+        } else if response != nil {
+            XCTAssert(true)
+        }
+    }
+
     func testObject() {
         struct Todo: Decodable {
             let id: Int
@@ -676,6 +709,7 @@ final class RequestTests: XCTestCase {
         ("complexRequest", testComplexRequest),
         ("headers", testHeaders),
         ("onObject", testObject),
+        ("onStatusCode", testStatusCode),
         ("onString", testString),
         ("onJson", testJson),
         ("requestGroup", testRequestGroup),

@@ -68,6 +68,11 @@ extension AnyRequest: Subscriber {
     public func receive(_ input: Input) -> Subscribers.Demand {
         if let res = input.response as? HTTPURLResponse {
             let statusCode = res.statusCode
+
+            if let onStatusCode = self.onStatusCode {
+                onStatusCode(statusCode)
+            }
+
             if statusCode < 200 || statusCode >= 300 {
                 if let onError = self.onError {
                     onError(RequestError(statusCode: statusCode, error: input.data))
