@@ -22,7 +22,7 @@ public extension Request {
     }
 }
 
-@_functionBuilder
+@resultBuilder
 public struct RequestChainBuilder {
     public static func buildBlock(_ requests: (([Data?], [Error?]) -> RequestParam)...) -> [([Data?], [Error?]) -> RequestParam] {
         return requests

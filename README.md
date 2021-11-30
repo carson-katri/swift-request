@@ -221,7 +221,7 @@ Request {
 ```
 
 ## How it Works
-The body of the `Request` is built using the `RequestBuilder` `@_functionBuilder`.
+The body of the `Request` is built using the `RequestBuilder` `@resultBuilder`.
 
 It merges each `RequestParam` in the body into one `CombinedParam` object. This contains all the other params as children.
 

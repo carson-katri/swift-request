@@ -7,7 +7,7 @@
 
 import Foundation
 
-@_functionBuilder
+@resultBuilder
 public struct JsonBuilder {
     public static func buildBlock(_ props: (String, Any)...) -> [(String, Any)] {
         return props

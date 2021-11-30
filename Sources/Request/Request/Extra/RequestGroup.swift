@@ -8,7 +8,7 @@
 import Foundation
 import Json
 
-@_functionBuilder
+@resultBuilder
 public struct RequestGroupBuilder {
     public static func buildBlock(_ requests: Request...) -> [Request] {
         return requests

@@ -12,7 +12,7 @@ import Combine
 
 /// The building block for making an HTTP request
 ///
-/// Built using a `@_functionBuilder`, available in Swift 5.1
+/// Built using a `@resultBuilder`, available in Swift 5.4
 ///
 /// *Example*:
 ///
