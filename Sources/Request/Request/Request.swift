@@ -106,6 +106,22 @@ public struct AnyRequest<ResponseType> where ResponseType: Decodable {
                 .subscribe(UpdateSubscriber(request: self))
         }
     }
+    
+    #if swift(>=5.5)
+    /// Performs the `Request`, then returns the `ResponseType` or throws.
+    public func call() async throws -> ResponseType {
+        return try await withCheckedThrowingContinuation { continuation in
+            self
+                .onObject(continuation.resume(returning:))
+                .onError(continuation.resume(throwing:))
+                .call()
+        }
+    }
+    
+    public func callAsFunction() async throws -> ResponseType {
+        return try await call()
+    }
+    #endif
 
     internal func buildSession() -> (configuration: URLSessionConfiguration, request: URLRequest) {
         var request = URLRequest(url: URL(string: "https://")!)

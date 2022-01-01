@@ -701,26 +701,26 @@ final class RequestTests: XCTestCase {
         
         waitForExpectations(timeout: 10000)
     }
-
-    static var allTests = [
-        ("simpleRequest", testSimpleRequest),
-        ("post", testPost),
-        ("query", testQuery),
-        ("complexRequest", testComplexRequest),
-        ("headers", testHeaders),
-        ("onObject", testObject),
-        ("onStatusCode", testStatusCode),
-        ("onString", testString),
-        ("onJson", testJson),
-        ("requestGroup", testRequestGroup),
-        ("requestChain", testRequestChain),
-        ("requestChainErrors", testRequestChainErrors),
-        ("anyRequest", testAnyRequest),
-        ("testError", testError),
-        ("testUpdate", testUpdate),
+    
+    #if swift(>=5.5)
+    func testAsync() async throws {
+        struct Todo: Decodable, Hashable {
+            let id: Int
+            let userId: Int
+            let title: String
+            let completed: Bool
+        }
         
-        ("testPublisher", testPublisher),
-        ("testPublisherDecode", testPublisherDecode),
-        ("testPublisherGroup", testPublisherGroup)
-    ]
+        let getTodos = AnyRequest<[Todo]> {
+            Url("https://jsonplaceholder.typicode.com/todos")
+        }
+        
+        // Test out `async let`, `try await`, and `callAsFunction`.
+        async let callTodos = getTodos.call()
+        async let callAsFunctionTodos = getTodos()
+        let calledTodos = try await callTodos
+        let calledAsFunctionTodos = try await callAsFunctionTodos
+        XCTAssertEqual(calledTodos, calledAsFunctionTodos)
+    }
+    #endif
 }

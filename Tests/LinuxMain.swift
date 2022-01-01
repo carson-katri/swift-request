@@ -1,7 +1,1 @@
-import XCTest
-
-import RequestTests
-
-var tests = [XCTestCaseEntry]()
-tests += RequestTests.allTests()
-XCTMain(tests)
+fatalError("Test with the `--enable-test-discovery` flag.")
