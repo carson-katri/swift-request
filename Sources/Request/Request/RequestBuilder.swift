@@ -7,7 +7,7 @@
 
 import Foundation
 
-@_functionBuilder
+@resultBuilder
 public struct RequestBuilder {
     public static func buildBlock(_ params: RequestParam...) -> RequestParam {
         CombinedParams(children: params)

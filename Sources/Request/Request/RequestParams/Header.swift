@@ -25,7 +25,7 @@ public struct Header {
     }
 }
 
-//@_functionBuilder
+//@resultBuilder
 //struct HeadersBuilder {
 //    static func buildBlock(_ headers: HeaderParam...) -> RequestParam {
 //        return CombinedParams(children: headers)
