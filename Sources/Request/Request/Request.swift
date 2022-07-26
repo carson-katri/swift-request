@@ -110,11 +110,25 @@ public struct AnyRequest<ResponseType> where ResponseType: Decodable {
     #if swift(>=5.5)
     /// Performs the `Request`, then returns the `ResponseType` or throws.
     public func call() async throws -> ResponseType {
+        let publisher = self.buildPublisher()
+
         return try await withCheckedThrowingContinuation { continuation in
-            self
-                .onObject(continuation.resume(returning:))
-                .onError(continuation.resume(throwing:))
-                .call()
+            var cancellable: AnyCancellable?
+            cancellable = publisher.sink { completion in
+                switch completion {
+                case .finished:
+                    break
+                case let .failure(error):
+                    continuation.resume(throwing: error)
+                }
+                cancellable?.cancel()
+            } receiveValue: { value in
+                do {
+                    continuation.resume(returning: try JSONDecoder().decode(ResponseType.self, from: value.data))
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
         }
     }
     

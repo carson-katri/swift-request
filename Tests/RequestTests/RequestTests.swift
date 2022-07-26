@@ -30,6 +30,12 @@ final class RequestTests: XCTestCase {
             Url("https://jsonplaceholder.typicode.com/todos")
         })
     }
+    
+    func testFoundationURL() {
+        performRequest(Request {
+            URL(string: "https://jsonplaceholder.typicode.com/todos")!
+        })
+    }
 
     func testRequestWithCondition() {
         let condition = true
@@ -713,13 +719,14 @@ final class RequestTests: XCTestCase {
     }
     
     #if swift(>=5.5)
+    struct Todo: Decodable, Hashable {
+        let id: Int
+        let userId: Int
+        let title: String
+        let completed: Bool
+    }
+    
     func testAsync() async throws {
-        struct Todo: Decodable, Hashable {
-            let id: Int
-            let userId: Int
-            let title: String
-            let completed: Bool
-        }
         
         let getTodos = AnyRequest<[Todo]> {
             Url("https://jsonplaceholder.typicode.com/todos")
@@ -731,6 +738,14 @@ final class RequestTests: XCTestCase {
         let calledTodos = try await callTodos
         let calledAsFunctionTodos = try await callAsFunctionTodos
         XCTAssertEqual(calledTodos, calledAsFunctionTodos)
+    }
+    
+    func testCallAsFunction() async throws {
+        let request = AnyRequest<[Todo]> {
+            Url("https://jsonplaceholder.typicode.com/todos")
+        }
+        
+        let _ = try await request()
     }
     #endif
 }
