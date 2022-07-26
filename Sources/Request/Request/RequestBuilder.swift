@@ -32,4 +32,8 @@ public struct RequestBuilder {
     public static func buildEither(second: RequestParam) -> RequestParam {
         second
     }
+    
+    public static func buildArray(_ components: [RequestParam]) -> RequestParam {
+        CombinedParams(children: components)
+    }
 }

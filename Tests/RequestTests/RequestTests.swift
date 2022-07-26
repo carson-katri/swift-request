@@ -120,6 +120,16 @@ final class RequestTests: XCTestCase {
             Query([QueryParam("key", value: "value"), QueryParam("key2", value: "value2")])
         })
     }
+    
+    func testBuildArray() {
+        let headers = ["Content-Type": "application/json", "Cache-Control": "no-cache"]
+        performRequest(Request {
+            Url("https://jsonplaceholder.typicode.com/todos")
+            for (key, value) in headers {
+                Header(key: key, value: value)
+            }
+        })
+    }
 
     func testComplexRequest() {
         performRequest(Request {
