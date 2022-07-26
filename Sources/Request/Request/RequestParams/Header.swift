@@ -8,7 +8,17 @@
 import Foundation
 
 /// Creates a `HeaderParam` for any number of different headers
-public struct Header {
+public struct Header: RequestParam {
+    private let _backing: `Any`
+    
+    public init(key: String, value: String) {
+        self._backing = .init(key: key, value: value)
+    }
+    
+    public func buildParam(_ request: inout URLRequest) {
+        _backing.buildParam(&request)
+    }
+    
     /// Sets the value for any header
     public struct `Any`: RequestParam {
         private let key: String

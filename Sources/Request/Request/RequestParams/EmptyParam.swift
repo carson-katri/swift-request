@@ -8,6 +8,8 @@
 import Foundation
 
 public struct EmptyParam: RequestParam {
+    public init() {}
+    
     public func buildParam(_ request: inout URLRequest) {}
 }
 

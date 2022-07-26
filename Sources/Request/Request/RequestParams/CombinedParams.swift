@@ -16,7 +16,7 @@ internal struct CombinedParams: RequestParam, SessionParam {
 
     func buildParam(_ request: inout URLRequest) {
         children
-            .sorted { a, _ in (a is Url) }
+            .sorted { a, _ in (a is Url) || (a is Foundation.URL) }
             .filter { !($0 is SessionParam) || $0 is CombinedParams }
             .forEach {
                 $0.buildParam(&request)
