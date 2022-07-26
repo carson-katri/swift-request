@@ -124,7 +124,11 @@ public struct AnyRequest<ResponseType> where ResponseType: Decodable {
                 cancellable?.cancel()
             } receiveValue: { value in
                 do {
-                    continuation.resume(returning: try JSONDecoder().decode(ResponseType.self, from: value.data))
+                    if ResponseType.self == Data.self {
+                        continuation.resume(returning: value.data as! ResponseType)
+                    } else {
+                        continuation.resume(returning: try JSONDecoder().decode(ResponseType.self, from: value.data))
+                    }
                 } catch {
                     continuation.resume(throwing: error)
                 }

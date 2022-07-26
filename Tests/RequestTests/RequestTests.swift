@@ -741,7 +741,7 @@ final class RequestTests: XCTestCase {
     }
     
     func testCallAsFunction() async throws {
-        let request = AnyRequest<[Todo]> {
+        let request = Request {
             Url("https://jsonplaceholder.typicode.com/todos")
         }
         
